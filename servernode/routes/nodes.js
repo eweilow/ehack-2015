@@ -12,14 +12,26 @@ router.get('/:node_id', function(req, res, next) {
 	var sensor_queries = {};
 	for (var sensor_id in node.sensors) {
 		var sensor = node.sensors[sensor_id];
-		console.log(sensor.type);
+		sensor_id = parseInt(sensor_id);
 		switch (sensor.type) {
 			case 1:
-			console.log("aa");
 			sensor_queries[sensor_id] = function(callback) {
 				connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
-					//callback({ value: data[0].reading });
-					callback(null, { value: 420 });
+					if (data.length)
+						callback(null, { value: data[0].reading });
+					else
+						callback(null, { value: 0 });
+				});
+			};
+			break;
+			
+			case 2:
+			sensor_queries[sensor_id] = function(callback) {
+				connection.query("SELECT filename FROM sensor_files WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
+					if (data.length)
+						callback(null, { value: data[0].filename });
+					else
+						callback(null, { value: "" });
 				});
 			};
 			break;

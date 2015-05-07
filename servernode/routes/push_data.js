@@ -9,11 +9,7 @@ function handle_data(app, data, id, files) {
 	console.log(data);
 	var connection = app.get('connection');
 	var node = nodes.list[0]; // TODO: grab the right node
-	data.readings.forEach(function(readout) {
-		if (!readout.temperature) {
-			return;
-		}
-		
+	data.readings.forEach(function(readout) {		
 		var sensor = node.sensors[readout.sensor_id];
 		if (!sensor) {
 			return;
@@ -24,7 +20,7 @@ function handle_data(app, data, id, files) {
 			break;
 			
 			case 2:
-			connection.query("INSERT INTO sensor_files(sensorid, filename) VALUES(?, ?)", [readout.sensor_id, readout.filename], function(err) { });
+			connection.query("INSERT INTO sensor_files(sensorid, filename, time) VALUES(?, ?, ?)", [readout.sensor_id, readout.filename, readout.time], function(err) { console.log(err); });
 			break;
 		}
 	});
