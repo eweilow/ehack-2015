@@ -11,6 +11,10 @@ var STATE_CONNECTING = 1;
 var STATE_CONNECTED = 2;
 
 SensorNode.prototype.open_socket = function(callback) {
+	if (this.state != STATE_DISCONNECTED) {
+		return;
+	}
+	
 	this.socket = net.connect({
 		host: this.ip,
 		port: this.port
@@ -20,6 +24,10 @@ SensorNode.prototype.open_socket = function(callback) {
 	
 	this.socket.on('connect', function() {
 		node.state = STATE_CONNECTED;
+		if (this.queued_config) {
+			this.push_config(this.queued_config);
+			this.queued_config = null;
+		}
 		callback(true);
 	});
 	
@@ -59,6 +67,15 @@ SensorNode.prototype.ping = function(callback) {
 	this.ping_callbacks.push(callback);
 	this.socket.write("\0");
 };
+
+SensorNode.prototype.push_config = function(config) {
+	if (this.state == STATE_CONNECTED) {
+		this.socket.write("\1");
+	} else {
+		this.queued_config = config;
+		this.open_socket(function() { });
+	}
+}
 
 module.exports = {
 	SensorNode: SensorNode,

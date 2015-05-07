@@ -6,13 +6,31 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
+var mysql = require('mysql');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var push_data = require('./routes/push_data');
 var get_image = require('./routes/get_image');
 
+var connection = mysql.createConnection({
+	host: '213.159.191.50',
+	user: 'root',
+	password: '',
+	database: 'server_node'
+});
+
+connection.connect(function(err) {
+	if (!err) {
+		console.log("Connected to DB");
+	} else {
+		console.log("DB connection failed", err);
+	}
+});
+	
 var app = express();
+
+app.set('connection', connection);
 
 app.use(busboy());
 app.use(bodyParser.json())
@@ -33,6 +51,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/push_data', push_data);
 app.use('/get_image', get_image);
+app.use('/node', require('./routes/node'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

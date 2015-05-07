@@ -12,6 +12,10 @@ node.ping(function(status) {
 	console.log("Pinged node", status);
 });
 
+timers.setInterval(function() {
+	console.log("foo");
+}, 60000);
+
 var server = http.createServer(app);
 server.listen(3000);
 server.on('error', onError);
@@ -47,5 +51,3 @@ function onListening() {
 		: 'port ' + addr.port;
 	debug('Listening on ' + bind);
 }
-
-timers.setInterval(function() { console.log("foo"); }, 1000);
