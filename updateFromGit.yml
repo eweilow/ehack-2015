@@ -1,0 +1,16 @@
+---
+
+# This playbook deploys the whole application stack in this site.
+
+# Apply common configuration to all hosts
+- hosts: Pi-Nodes
+  user: pi
+# Example read-write git checkout from github
+  tasks:
+  - name: Get Latest version via git
+    action: git repo=https://github.com/eweilow/ehack-2015.git dest=/home/pi/codestuffs
+
+
+#tasks:
+#  - name: make sure apache is running
+#    service: name=httpd state=running
