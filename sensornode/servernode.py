@@ -9,14 +9,15 @@ import os
 import requests
 
 class ServerNode(object):
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, sensorId):
         self.ip = ip
-        self.pushFileUrl = "http://" + self.ip + ":" + str(port) + "/push_data"
+        self.pushFileUrl = "http://" + self.ip + ":" + str(port) \
+            + "/push_data/" + str(sensorId)
 
-    def pushFile(self, pathOrFile, body="" filename=None):
-        self.pushFiles([pathOrFile], body, [filename])
+    def pushFile(self, pathOrFile, filename=None):
+        self.pushFiles([pathOrFile], [filename])
 
-    def pushFiles(self, pathOrFileList, body="", filenames=None):
+    def pushFiles(self, pathOrFileList, filenames=None):
         filenames = filenames if filenames is not None \
             else [None] * len(pathOrFileList)
         files = []
@@ -35,11 +36,11 @@ class ServerNode(object):
         if not filename:
             raise ValueError("Pushing a file requires a filename.")
 
-        requests.put(self.pushFileUrl, body, files=files)
+        requests.put(self.pushFileUrl, files=files)
 
 if __name__ == '__main__':
     with open("serverip.txt", 'r') as f:
         ip, port = f.read().strip().split(':')
     port = int(port)
-    server = ServerNode(ip, port)
-    server.pushFile("servernodetest.png")
+    server = ServerNode(ip, port, 707)
+    server.pushFiles(["servernodetest.png", "readings.json"])

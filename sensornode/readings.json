@@ -1,0 +1,20 @@
+{
+    "id": 707,
+    "readings": [
+        {
+            "type": "thermometer",
+            "time": 1431026320751,
+            "temperature": 29.837
+        },
+        {
+            "type": "camera",
+            "time": 1431026320750,
+            "filename": "servernodetest.png"
+        },
+        {
+            "type": "thermometer",
+            "time": 1431026320749,
+            "temperature": 29.754
+        }
+    ]
+}
