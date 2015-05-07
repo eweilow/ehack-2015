@@ -4,13 +4,11 @@ mixin navbar()
   -var items = {"Home": "/", "Nodes": "/nodes", "Browse": "/browse"}
   nav
     a(href="/").nav-header Piffle
-    ul.nav.navbar-nav
+    ul
       each key, item in items
         li(class=activePage===key?"active":"")
           a(href=key)= item
                 
-//mixin homeNodes()
-
 html(lang='en')
   head
     meta(charset='utf-8')
