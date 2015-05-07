@@ -16,6 +16,7 @@ function SensorNode(id, nice_name, ip, port, last_status, last_ping) {
 	this.state = STATE_DISCONNECTED;
 	
 	this.ping_callbacks = [];
+	this.sensors = {};
 }
 
 var STATE_DISCONNECTED = 0;

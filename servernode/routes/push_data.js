@@ -11,7 +11,8 @@ function handle_data(app, data, id, files) {
 		if (!readout.temperature) {
 			return;
 		}
-		connection.query("INSERT INTO temperaturereading(nodeid, reading, unixmilliseconds) VALUES(?, ?, ?)", [id, readout.temperature, readout.time], function(err) {
+		// TODO: verify the sensorid
+		connection.query("INSERT INTO temperaturereading(sensorid, reading, unixmilliseconds) VALUES(?, ?, ?)", [readout.sensor_id, readout.temperature, readout.time], function(err) {
 			console.log(err);
 		});
 	});
