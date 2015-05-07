@@ -2,16 +2,21 @@ extends layout
 
 block content
 	h1= title
-	p= nice_name
+	//p= nice_name
  
  
-	table.table.tablealignshit
+	table.table
 		thead
 			tr
-				th.table-bordered Sensor Name
+				th.table-bordered= nice_name
+				th.table-bordered
+				
+		
+			tr
+				th.table-bordered Sensor type
 				th.table-bordered Value
 				
-	each sensor, id in sensors
-		tr
-			td.table-bordered= "Temperature"
-			td.table-bordered= sensor.value / 1000
+		each sensor, id in sensors
+			tr
+				td.table-bordered Temperature
+				td.table-bordered= sensor.value / 1000		
