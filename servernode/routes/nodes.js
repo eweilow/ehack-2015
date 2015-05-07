@@ -5,7 +5,7 @@ router.get('/:node_id', function(req, res, next) {
 	var node_id = req.params.id;
 	
 	var connection = req.app.get('connection');
-	connection.query("SELECT datapoint.* FROM temperaturereading datapoint INNER JOIN (SELECT nodeid, id, MAX(unixmilliseconds) time FROM temperaturereading WHERE id = ? GROUP BY nodeid) maxdata WHERE datapoint.nodeid = maxdata.nodeid AND datapoint.id = maxdata.id", [req.params.node_id], function(err, data) {
+	connection.query("SELECT datapoint.* FROM temperaturereading datapoint INNER JOIN (SELECT nodeid, id, MAX(unixmilliseconds) time FROM temperaturereading WHERE nodeid = ? GROUP BY nodeid) maxdata WHERE datapoint.nodeid = maxdata.nodeid AND datapoint.id = maxdata.id", [req.params.node_id], function(err, data) {
 		if (!data.length) {
 			res.status(500);
 			res.end();
