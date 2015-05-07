@@ -54,7 +54,7 @@ SensorNode.prototype.open_socket = function(callback) {
 	});
 	
 	this.socket.on('data', function(data) {
-		if (this.ping_callbacks.length)
+		if (node.ping_callbacks.length)
 			node.set_last_status(true);
 		node.ping_callbacks.forEach(function(callback) {
 			callback(true);

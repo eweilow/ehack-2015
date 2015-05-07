@@ -42,7 +42,7 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 
 timers.setInterval(function() {
 	console.log("Pinging nodes");
-	nodes.nodes.forEach(function(node) {
+	nodes.list.forEach(function(node) {
 		node.ping(function(status) {
 			console.log("Pinged node", status);
 		});
