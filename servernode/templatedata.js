@@ -7,14 +7,14 @@ module.exports.mockup = [
     Interval: 2.0
   },
   {
-    ID: 7,
+    ID: 3,
     NiceName: "Sprint-Wall",
     Readings: [ 23, 22.5, 22, 22.1, 27 ],
     LastReading: 17.3,
     Interval: 2.0
   },
   {
-    ID: 3,
+    ID: 2,
     NiceName: "Foam-Man",
     Readings: [ 22.0, 22.0, 22.01, 26.4, 75.1 ],
     LastReading: 1.1,

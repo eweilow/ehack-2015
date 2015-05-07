@@ -1,6 +1,9 @@
 extends layout
 
 block content
-    
+  p= JSON.stringify(data)
   h1= title
   p Welcome to #{title}
+  
+  each node in data
+    p= node.ID
