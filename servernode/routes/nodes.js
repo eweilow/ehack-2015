@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var templatedata = require('../templatedata');
 
 router.get("/:id", function(req, res){
 	var id = req.params.id;
