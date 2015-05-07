@@ -1,7 +1,26 @@
 extends layout
-
-block content
+block js
+  script.
+    $(document).ready( function(){
+      //Get the canvas &
+      context var c = $('#respondCanvas');
+      var ct = c.get(0).getContext('2d');
+      var container = $(c).parent();
   
+      //Run function when browser resizes
+      $(window).resize( respondCanvas );
+  
+      function respondCanvas(){ 
+          c.attr('width', $(container).width() ); //max width
+          c.attr('height', $(container).height() ); //max height
+  
+          //Call a function to redraw other content (texts, images etc)
+      }
+      //Initial call 
+      respondCanvas();
+    }); 
+    
+block content
   -var tempscale = { 15: "#3571b8", 20: "#4fbfa1", 25: "#efe763", 30: "#f2696a" };
   .grid
     each node, id in data
@@ -14,5 +33,5 @@ block content
               if(temp > node.Readings[0]) 
                 -hexCode = hex
                 -break
-            
+            .timeSinceUpdate +#{node.LastReading}s
             .tempReading(style="background: " + hexCode) #{node.Readings[0]}°C

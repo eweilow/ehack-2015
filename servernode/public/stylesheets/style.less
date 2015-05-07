@@ -13,6 +13,7 @@
 @side-padding: 10px;
 
 * { 
+  -webkit-backface-visibility: hidden;
   margin: 0; padding: 0; 
   .box-sizing(border-box);
 }
@@ -141,8 +142,22 @@ nav {
           font-size: 22px;
           .transition(height 0.1s, line-height 0.1s, font-size 0.1s);
         }
+        .timeSinceUpdate {
+          width: 100%;
+          height: @one-size;
+          line-height: @one-size;
+          position: absolute;
+          bottom: @one-size;
+          left: 0;
+          font-size: 18px;
+          
+          .transition(color 0.1s);
+        }
         
         &:hover {
+          .timeSinceUpdate {
+            color: rgba(0,0,0,0.0);
+          }
           header {
             font-size: 16px;
             height: @row / 1.5;
