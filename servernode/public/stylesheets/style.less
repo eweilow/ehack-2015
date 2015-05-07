@@ -69,6 +69,12 @@ nav {
 @margin: 20px;
 @width: 100% / @items;
 
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  .translate(-50%, -100%);
+}
 .grid {
   .box-sizing(border-box);
   width: 100%;
@@ -96,6 +102,7 @@ nav {
       left: 0;
       
       .inner {    
+        overflow: hidden;
         color: rgba(0,0,0,0.5);
         background: #ffffff;
         width: 100%;
@@ -121,6 +128,8 @@ nav {
           color: rgba(0,0,0,0.5);
         }
         header {
+          z-index: 5;
+          background: white;
           width: 100%;
           position: absolute;
           left: 0;
@@ -134,24 +143,45 @@ nav {
         }
         .tempReading {
           width: 100%;
-          height: @one-size;
-          line-height: @one-size;
+          height: @one-size / 1.25;
+          line-height: @one-size / 1.25;
           position: absolute;
           bottom: 0;
           left: 0;
           font-size: 22px;
+          color: rgba(0,0,0,0.4);
           .transition(height 0.1s, line-height 0.1s, font-size 0.1s);
         }
         .timeSinceUpdate {
           width: 100%;
-          height: @one-size;
-          line-height: @one-size;
+          height: 100%;
           position: absolute;
-          bottom: @one-size;
+          bottom: 0;
           left: 0;
           font-size: 18px;
+          color: rgba(0,0,0,0.8);
+          padding-top: @row;
+          padding-bottom: @one-size / 1.25;
           
           .transition(color 0.1s);
+          
+          .innerTimeWrapper {
+            height: 100%; width: 100%; display: block; }
+        }
+        .imageWrapper {
+          height: 100%; width: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          padding-top: @row / 1.5;
+          padding-bottom: @one-size / @factor;
+          opacity: 0.25;
+          .transition(opacity 0.1s);
+          
+          img { height: 100%; width: 100%;
+          position: absolute;
+          left: 0;
+          top: 0; }
         }
         
         &:hover {
@@ -167,6 +197,9 @@ nav {
             font-size: 16px;
             height: @one-size / @factor;
             line-height: @one-size / @factor;
+          }
+          .imageWrapper {
+            opacity: 1.0;
           }
         }
       }
