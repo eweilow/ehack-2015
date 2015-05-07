@@ -12,14 +12,14 @@ router.get('/:node_id', function(req, res, next) {
 		var sensor = node.sensors[sensor_id];
 	}*/
 	var sensors = {};
-	connection.query("SELECT datapoint.* FROM temperaturereading datapoint INNER JOIN (SELECT sensorid, id, MAX(unixmilliseconds) time FROM temperaturereading WHERE sensorid = ? GROUP BY sensorid) maxdata WHERE datapoint.sensorid = maxdata.sensorid AND datapoint.id = maxdata.id", [1], function(err, data) {
+	connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = 1 ORDER BY time DESC LIMIT 1", [1], function(err, data) {
 		if (!data.length) {
 			res.status(500);
 			res.end();
 			return;
 		}
 		sensors[1] = { value: data[0].reading };
-		res.render("nodes", { sensors: sensors });
+		res.render("nodes", { nice_name: node.nice_name, sensors: sensors });
 	});
 });
 
