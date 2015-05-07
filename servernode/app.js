@@ -6,33 +6,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
-var mysql = require('mysql');
-var config = require('config');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var push_data = require('./routes/push_data');
 var get_image = require('./routes/get_image');
 
-var db_config = config.get("db");
-var connection = mysql.createConnection({
-	host: db_config.host,
-	user: db_config.user,
-	password: db_config.password,
-	database: db_config.database
-});
-
-connection.connect(function(err) {
-	if (!err) {
-		console.log("Connected to DB");
-	} else {
-		console.log("DB connection failed", err);
-	}
-});
-	
 var app = express();
-
-app.set('connection', connection);
 
 app.use(busboy());
 app.use(bodyParser.json())

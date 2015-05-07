@@ -3,19 +3,47 @@
 var app = require('../app');
 var debug = require('debug')('servernode:server');
 var http = require('http');
+var mysql = require('mysql');
+var config = require('config');
 var timers = require('timers');
 var nodes = require('../nodes');
 
-console.log("Pushing config to all nodes...");
-var node = new nodes.SensorNode('213.159.191.84', 5002);
-node.ping(function(status) {
-	console.log("Pinged node", status);
+var db_config = config.get("db");
+var connection = mysql.createConnection({
+	host: db_config.host,
+	user: db_config.user,
+	password: db_config.password,
+	database: db_config.database
+});
+
+app.set('connection', connection);
+
+connection.connect(function(err) {
+	if (!err) {
+		console.log("Connected to DB");
+	} else {
+		console.log("DB connection failed", err);
+	}
+});
+
+console.log("Reading node list");
+connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodestatus.nodeid", function(err, data) {
+	console.log(data);
+	data.forEach(function(node_data) {
+		var node = new nodes.SensorNode(node_data.id, node_data.ip, 5002, node_data.laststatus > 0, 0); // TODO: read out last update time
+		node.ping(function(status) {
+			console.log("Pinged node", status);
+		});
+		nodes.nodes.push(node);
+	});
 });
 
 timers.setInterval(function() {
 	console.log("Pinging nodes");
-	node.ping(function(status) {
-		console.log("Pinged node", status);
+	nodes.nodes.forEach(function(node) {
+		node.ping(function(status) {
+			console.log("Pinged node", status);
+		});
 	});
 }, 60000);
 

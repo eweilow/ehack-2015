@@ -1,8 +1,16 @@
 var net = require('net');
+var app = require('./app');
 
-function SensorNode(ip, port) {
+var nodes = [];
+
+function SensorNode(id, ip, port, last_status, last_ping) {
+	this.id = id;
 	this.ip = ip;
 	this.port = port;
+	this.last_status = last_status;
+	this.last_ping = last_ping;
+	this.state = STATE_DISCONNECTED;
+	
 	this.ping_callbacks = [];
 }
 
@@ -32,17 +40,20 @@ SensorNode.prototype.open_socket = function(callback) {
 	});
 	
 	this.socket.on('close', function() {
+		console.log("socket closed");
 		node.state = STATE_DISCONNECTED;
 	});
 	
 	this.socket.on('error', function() {
+		console.log("socket error");
 		if (node.state == STATE_CONNECTING) {
 			callback(false);
 		}
 	});
 	
 	this.socket.on('data', function(data) {
-		console.log(data);
+		if (this.ping_callbacks.length)
+			node.set_last_status(true);
 		node.ping_callbacks.forEach(function(callback) {
 			callback(true);
 		});
@@ -50,7 +61,13 @@ SensorNode.prototype.open_socket = function(callback) {
 	});
 }
 
-SensorNode.prototype.ping = function(callback) {
+SensorNode.prototype.set_last_status = function(status) { // TODO: update time
+	this.last_status = status;
+	var connection = app.get('connection');
+	connection.query("UPDATE nodestatus SET laststatus = ?, lastupdate = ? WHERE nodeid = ?", [this.status ? 1 : 0, 0, this.id]);
+}
+
+SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts
 	if (this.state != STATE_CONNECTED) {
 		console.log("opening socket");
 		var node = this;
@@ -58,6 +75,7 @@ SensorNode.prototype.ping = function(callback) {
 			if (status) {
 				node.ping(callback);
 			} else {
+				node.set_last_status(false);
 				callback(false);
 			}
 		})
@@ -79,4 +97,5 @@ SensorNode.prototype.push_config = function(config) {
 
 module.exports = {
 	SensorNode: SensorNode,
+	nodes: nodes
 };
