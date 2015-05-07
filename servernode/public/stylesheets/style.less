@@ -1,7 +1,68 @@
+@import "mixins.less";
+
+@primary: #756A4F;
+@secondary-a: #386282;
+@third-a: #619CA8;
+
+@secondary-b: #DBCC3D;
+@third-b: #A8A161;
+
 body {
-  padding-top: 50px;
+  width: 100%;
+  min-height: 100%;
+  background: @primary;
+  font-family: 'Noto Sans', sans-serif;
 }
-.starter-template {
-  padding: 40px 15px;
-  text-align: center;
+
+.container {
+  width: 100%;
+}
+
+@items: 8;
+@margin: 1%;
+@width: (100% - ((@items - 1) * @margin)) / @items;
+
+.grid {
+  .box-sizing(border-box);
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  text-align: left;
+  .gridItem {
+    margin-top: 0;
+    margin-bottom: @margin / 2;
+    text-align: center;
+    .box-sizing(border-box);
+    display: inline-block;
+    width: @width;
+    padding-bottom: @width;
+    background: #ddd;
+    position: relative;
+    
+    .inner { 
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      
+      padding: 10px;
+      
+      h2 { padding: 5px; }
+      h3 { padding: 5px; color: rgba(0,0,0,0.5); }
+      
+      .id { 
+        display: block;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: rgba(0,0,0,0.5);
+      }
+    }
+  }
+  .gridItem + .gridItem { 
+    margin-left: @margin; 
+  }
+  .gridItem:nth-of-type(5n + 1) { margin-left: 0px; }
 }

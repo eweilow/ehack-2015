@@ -5,19 +5,16 @@ block content
   h1= title
   p Welcome to #{title}
   
-  
-  
-  table.table
-    thead
-      tr
-        th.table-bordered ID
-        th.table-bordered Name
-        th.table-bordered Temp(C)
-        
+  -var tempscale = { 15: "#3571b8", 20: "#4fbfa1", 25: "#efe763", 30: "#f2696a" };
+  .grid
     each node, id in data
-      tr
-        td.table-bordered= id
-        td.table-bordered
-          a(href="/nodes/"+id)= node.NiceName
-        td.table-bordered= node.Readings[0]
-      
+      .gridItem
+        .inner
+          .id ##{id}
+          -var hexCode = "#ff0000"
+          h2= node.NiceName
+          each hex, temp in tempscale
+            if(temp > node.Readings[0]) 
+              -hexCode = hex
+              -break
+          h3(style="background: " + hexCode) #{node.Readings[0]}°C
