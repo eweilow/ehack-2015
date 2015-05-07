@@ -1,5 +1,21 @@
 extends layout
 
 block content
+  //p= JSON.stringify(data)
   h1= title
   p Welcome to #{title}
+  
+  table.table
+    thead
+      tr
+        th.table-bordered ID
+        th.table-bordered Name
+        th.table-bordered Temp(C)
+        
+    each node in data
+      tr
+        td.table-bordered= node.id
+        td.table-bordered
+          a(href="/nodes/"+node.id)= node.nice_name
+        td.table-bordered= "placeholder 'yo"
+      

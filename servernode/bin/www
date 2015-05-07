@@ -8,6 +8,8 @@ var config = require('config');
 var timers = require('timers');
 var nodes = require('../nodes');
 
+nodes.app = app;
+
 var db_config = config.get("db");
 var connection = mysql.createConnection({
 	host: db_config.host,
@@ -30,11 +32,11 @@ console.log("Reading node list");
 connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodestatus.nodeid", function(err, data) {
 	console.log(data);
 	data.forEach(function(node_data) {
-		var node = new nodes.SensorNode(node_data.id, node_data.ip, 5002, node_data.laststatus > 0, 0); // TODO: read out last update time
+		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, 5002, node_data.laststatus > 0, 0); // TODO: read out last update time
 		node.ping(function(status) {
 			console.log("Pinged node", status);
 		});
-		nodes.nodes.push(node);
+		nodes.list.push(node);
 	});
 });
 

@@ -8,7 +8,7 @@ var busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
+var nodes = require('./routes/nodes');
 var push_data = require('./routes/push_data');
 var get_image = require('./routes/get_image');
 
@@ -20,6 +20,7 @@ app.use(bodyParser.json())
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.use(require('less-middleware')(path.join(__dirname, 'public')));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -30,7 +31,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/nodes', nodes);
 app.use('/push_data', push_data);
 app.use('/get_image', get_image);
 app.use('/node', require('./routes/node'));

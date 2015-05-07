@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1= title
+  p= node.NiceName
+ 
+ 
+  table.table.tablealignshit
+    thead
+      tr
+        th.table-bordered Temps(C)
+        
+    tr
+      td.table-bordered= node.Readings[0]
+    tr
+      td.table-bordered= node.Readings[1]
+    tr
+      td.table-bordered= node.Readings[2]
+    tr
+      td.table-bordered= node.Readings[3]
+    tr
+      td.table-bordered= node.Readings[4]

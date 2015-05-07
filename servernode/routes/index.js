@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var nodes = require('../nodes');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index', { title: 'Our Little Project' });
+	res.render('index', { title: 'Nodes', data: nodes.list });
 });
 
 module.exports = router;
