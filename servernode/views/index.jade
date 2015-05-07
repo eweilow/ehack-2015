@@ -14,9 +14,10 @@ block content
         th.table-bordered Name
         th.table-bordered Temp(C)
         
-    each node in data
+    each node, id in data
       tr
-        td.table-bordered= node.ID
-        td.table-bordered= node.NiceName
+        td.table-bordered= id
+        td.table-bordered
+          a(href="/node/"+id)= node.NiceName
         td.table-bordered= node.Readings[0]
       
