@@ -1,22 +1,17 @@
 extends layout
 
 block content
-  h1= title
-  p= node.NiceName
+	h1= title
+	p= nice_name
  
  
-  table.table.tablealignshit
-    thead
-      tr
-        th.table-bordered Temps(C)
-        
-    tr
-      td.table-bordered= node.Readings[0]
-    tr
-      td.table-bordered= node.Readings[1]
-    tr
-      td.table-bordered= node.Readings[2]
-    tr
-      td.table-bordered= node.Readings[3]
-    tr
-      td.table-bordered= node.Readings[4]
+	table.table.tablealignshit
+		thead
+			tr
+				th.table-bordered Sensor Name
+				th.table-bordered Value
+				
+	each sensor, id in sensors
+		tr
+			td.table-bordered= "Temperature"
+			td.table-bordered= sensor.value / 1000
