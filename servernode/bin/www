@@ -13,7 +13,10 @@ node.ping(function(status) {
 });
 
 timers.setInterval(function() {
-	console.log("foo");
+	console.log("Pinging nodes");
+	node.ping(function(status) {
+		console.log("Pinged node", status);
+	});
 }, 60000);
 
 var server = http.createServer(app);

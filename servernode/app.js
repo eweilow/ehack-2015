@@ -7,17 +7,19 @@ var bodyParser = require('body-parser');
 var busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var config = require('config');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var push_data = require('./routes/push_data');
 var get_image = require('./routes/get_image');
 
+var db_config = config.get("db");
 var connection = mysql.createConnection({
-	host: '213.159.191.50',
-	user: 'root',
-	password: '',
-	database: 'server_node'
+	host: db_config.host,
+	user: db_config.user,
+	password: db_config.password,
+	database: db_config.database
 });
 
 connection.connect(function(err) {
@@ -52,6 +54,7 @@ app.use('/users', users);
 app.use('/push_data', push_data);
 app.use('/get_image', get_image);
 app.use('/node', require('./routes/node'));
+app.use('/nodes', require('./routes/nodes'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
