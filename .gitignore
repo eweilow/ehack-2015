@@ -31,3 +31,7 @@ uploads
 # The server IP shouldn't be commited, yo!
 
 serverip.txt
+
+# Oh, and we're using Python.
+
+*.pyc
