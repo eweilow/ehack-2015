@@ -23,7 +23,7 @@ class ServerNode(object):
         files = []
 
         for i, pathOrFile in enumerate(pathOrFileList):
-            if isinstance(pathOrFile, file):
+            if hasattr(pathOrFile, "read"):
                 filename = filenames[i]
                 data = pathOrFile.read()
             else:
