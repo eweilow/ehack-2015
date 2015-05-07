@@ -35,7 +35,7 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, 5002, node_data.laststatus > 0, 0); // TODO: read out last update time
 		connection.query("SELECT * FROM sensorinfo WHERE nodeid = ?", [node.id], function(err, data) {
 			data.forEach(function(sensor_info) {
-				node.sensors[sensor_info.id] = { type: sensor_info.type };
+				node.sensors[sensor_info.id] = { type: sensor_info.sensortype };
 			});
 		});
 		node.ping(function(status) {
