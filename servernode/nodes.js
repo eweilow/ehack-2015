@@ -40,12 +40,10 @@ SensorNode.prototype.open_socket = function(callback) {
 	});
 	
 	this.socket.on('close', function() {
-		console.log("socket closed");
 		node.state = STATE_DISCONNECTED;
 	});
 	
 	this.socket.on('error', function() {
-		console.log("socket error");
 		if (node.state == STATE_CONNECTING) {
 			callback(false);
 		}
@@ -69,7 +67,6 @@ SensorNode.prototype.set_last_status = function(status) { // TODO: update time
 
 SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts
 	if (this.state != STATE_CONNECTED) {
-		console.log("opening socket");
 		var node = this;
 		this.open_socket(function(status) {
 			if (status) {
