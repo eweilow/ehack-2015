@@ -1,9 +1,22 @@
 extends layout
 
 block content
-  p= JSON.stringify(data)
+  //p= JSON.stringify(data)
   h1= title
   p Welcome to #{title}
   
-  each node in data
-    p= node.ID
+  
+  
+  table.table
+    thead
+      tr
+        th.table-bordered ID
+        th.table-bordered Name
+        th.table-bordered Temp(C)
+        
+    each node in data
+      tr
+        td.table-bordered= node.ID
+        td.table-bordered= node.NiceName
+        td.table-bordered= node.Readings[0]
+      
