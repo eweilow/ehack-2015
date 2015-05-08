@@ -49,7 +49,7 @@ class SensorNode(object):
             "delay": {
                 1: 1,
                 2: 10,
-                "push": 10
+                "push": 1
             }
         }
 
@@ -106,6 +106,8 @@ class Sensor(object):
             # even when just waiting around.
             time3 = time.time()
             if self.node.exitSignalReceived:
+                threadsafePrint("Stopping recurring service '{}'.".format(
+                    self.sensorId))
                 return False
             if self.node.config["delay"][self.sensorId] <= totalSlept:
                 break
@@ -114,6 +116,8 @@ class Sensor(object):
             time.sleep(i - (time4 - time3))
         if self.node.exitSignalReceived:
             # In case the thing doesn't ever sleep.
+            threadsafePrint("Stopping recurring service '{}'.".format(
+                self.sensorId))
             return False
         return True
 
@@ -175,8 +179,11 @@ class Pusher(Sensor):
             dataList.append(data)
 
         threadsafePrint("Pushing data!")
-        self.node.server.pushFiles(dataList + [readingsJson],
-            filenames + ["readings.json"], isData=True)
+        try:
+            self.node.server.pushFiles(dataList + [readingsJson],
+                filenames + ["readings.json"], isData=True)
+        except requests.ConnectionError:
+            threadsafePrint("Couldn't connect to server. Away with ye, data.")
 
 def cameraReading(t, extension=".jpg"):
     t = int(time.time() * 1000)
