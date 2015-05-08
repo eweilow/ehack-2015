@@ -8,6 +8,9 @@
         "thermometer": {
             "delay": 1
         },
+        "cputemp": {
+            "delay": 1
+        },
         "push": {
             "delay": 1
         }

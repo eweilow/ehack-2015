@@ -4,7 +4,7 @@
 import glob
 import os
 
-class ReadError(Exception):
+class ReadError(IOError):
     pass
 
 class NoThermometerError(Exception):
