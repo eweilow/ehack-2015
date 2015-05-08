@@ -1,10 +1,43 @@
 var net = require('net');
 
+/*
+5: {
+    NiceName: "Coke-Rainbow",
+    Readings: [ 35, 22.1, 22.15, 22.1, 22 ],
+    LastReading: 3.1,
+    Interval: 2.0
+  },
+*/
+
 var nodes = {
 	SensorNode: SensorNode,
 	list: [],
-	app: null
+  app: null
 };
+
+nodes.niceTransform = function (callback) {
+    var res = {};
+    
+    var connection = nodes.app.get('connection');
+    
+    var parser = function (index) {
+      if (index + 1 >= nodes.list.length) return callback(res);
+      var node = nodes.list[index];
+      
+      //console.log(node);
+      
+      connection.query("SELECT * FROM temperaturereading WHERE sensorid = (SELECT sensorid FROM sensorinfo WHERE nodeid = ? AND sensortype = 1 LIMIT 1) LIMIT 1", [node.id], function (err, data) {
+        if (err) throw err;
+        
+        console.log(data);
+        res[node.id] = {  NiceName: node.nice_name, Readings: [data[0].reading], LastReading: /*(new Date).getTime() - data[0].unixmilliseconds*/, Interval: 1.0 };
+        
+        
+        parser(index + 1);
+      });
+    };
+    parser(0);
+  }
 
 function SensorNode(id, nice_name, ip, port, last_status, last_ping) {
 	this.id = id;
@@ -67,7 +100,7 @@ SensorNode.prototype.open_socket = function(callback) {
 SensorNode.prototype.set_last_status = function(status) { // TODO: update time
 	this.last_status = status;
 	var connection = nodes.app.get('connection');
-	connection.query("UPDATE nodestatus SET laststatus = ?, lastupdate = ? WHERE nodeid = ?", [this.status ? 1 : 0, 0, this.id]);
+  connection.query("UPDATE nodestatus SET laststatus = ?, lastupdate = ? WHERE nodeid = ?", [this.status ? 1 : 0, 0, this.id]);
 }
 
 SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts

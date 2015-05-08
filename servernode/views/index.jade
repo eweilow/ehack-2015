@@ -19,22 +19,17 @@ block js
           
           $self.css("background", "rgb("+r+","+g+","+b+")")
           
-          $self.attr("temp", parseFloat(temp)+0.1);
-          $self.text(Math.floor($self.attr("temp")*100)/100.0 + "°C")
         });
-        
       }
       
       update();
-        window.setInterval(update, 100);
     }); 
     
 block content
   .grid
     each node in data
       -var inactive = 50
-      -node.LastReading = 5
-      -node.Readings = [5]
+      p= node.LastReading
       .gridItem
         .wrapper
           a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
