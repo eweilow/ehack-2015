@@ -11,6 +11,7 @@ from collections import OrderedDict
 from io import BytesIO
 from threading import Thread
 from picamera.camera import PiCamera
+from requests import ConnectionError
 from servernode import ServerNode
 
 def threadsafePrint(s):
@@ -35,6 +36,7 @@ class SensorNode(object):
         nodeId = 10
 
         self.server = ServerNode(ip, port, nodeId)
+        self.commander = tcpcommands.Commander(self)
 
         self.sensors = []
         self.addSensor(CameraSensor)
@@ -46,14 +48,21 @@ class SensorNode(object):
         self.readingQueue = Queue.Queue()
 
         self.config = {
-            "delay": {
-                1: 1,
-                2: 10,
-                "push": 1
+            "sensors": {
+                "camera": {
+                    "delay": 1,
+                    "resolution": [640, 480]
+                },
+                "thermometer": {
+                    "delay": 1
+                },
+                "push": {
+                    "delay": 1
+                }
             }
         }
 
-        self.exitSignalReceived = False
+    exitSignalReceived = False
 
     def addSensor(self, class_, sensorId=None):
         if sensorId is None:
@@ -62,6 +71,7 @@ class SensorNode(object):
             self.sensors.append(class_(self, sensorId))
 
     def run(self):
+        Thread(target=self.commander.run).start()
         for sensor in self.sensors:
             Thread(target=sensor.run).start()
 
@@ -69,6 +79,8 @@ class SensorNode(object):
             while True:
                 time.sleep(100)
         except (KeyboardInterrupt, SystemExit) as e:
+            threadsafePrint("Stopping commander.")
+            self.commander.close()
             self.exitSignalReceived = True
             raise e
 
@@ -95,7 +107,8 @@ class Sensor(object):
         signal is received, return False, otherwise True.
         """
         time2 = time.time()
-        totalSleep = self.node.config["delay"][self.sensorId] - (time2 - timeStarted)
+        totalSleep = self.node.config["sensors"][self.sensorId]["delay"] - \
+            (time2 - timeStarted)
         totalSlept = 0
         # Modulo gives you a remainder even with negative numbers, so the
         # following line might look a bit odd.
@@ -109,7 +122,8 @@ class Sensor(object):
                 threadsafePrint("Stopping recurring service '{}'.".format(
                     self.sensorId))
                 return False
-            if self.node.config["delay"][self.sensorId] <= totalSlept:
+            if self.node.config["sensors"][self.sensorId]["delay"] <= \
+                totalSlept:
                 break
             time4 = time.time()
             totalSlept += i
@@ -122,7 +136,7 @@ class Sensor(object):
         return True
 
 class ThermometerSensor(Sensor):
-    def __init__(self, node, sensorId=1):
+    def __init__(self, node, sensorId="thermometer"):
         Sensor.__init__(self, node, sensorId)
 
     def do(self):
@@ -135,14 +149,16 @@ class ThermometerSensor(Sensor):
         self.node.readingQueue.put(reading)
 
 class CameraSensor(Sensor):
-    def __init__(self, node, sensorId=2):
+    def __init__(self, node, sensorId="camera"):
         Sensor.__init__(self, node, sensorId)
 
     def do(self, camera):
         self.queuePicture(camera)
 
     def run(self):
-        with PiCamera() as camera:
+        with PiCamera(
+            resolution=self.node.config["sensors"][self.sensorId]["resolution"]
+        ) as camera:
             Sensor.run(self, camera)
 
     def queuePicture(self, camera):
@@ -180,10 +196,18 @@ class Pusher(Sensor):
 
         threadsafePrint("Pushing data!")
         try:
-            self.node.server.pushFiles(dataList + [readingsJson],
+            r = self.node.server.pushFiles(dataList + [readingsJson],
                 filenames + ["readings.json"], isData=True)
-        except requests.ConnectionError:
-            threadsafePrint("Couldn't connect to server. Away with ye, data.")
+        except (ConnectionError, requests.exceptions.Timeout):
+            threadsafePrint("Couldn't send files to server. Re-queuing data.")
+            for reading in j["readings"]:
+                while self.node.readingQueue.qsize() >= 5000:
+                    self.node.readingQueue.get()
+                self.node.readingQueue.put(reading)
+            for filename, data in zip(filenames, dataList):
+                while self.node.fileQueue.qsize() >= 75:
+                    self.node.readingQueue.get()
+                self.node.fileQueue.put((filename, data))
 
 def cameraReading(t, extension=".jpg"):
     t = int(time.time() * 1000)

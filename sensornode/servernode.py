@@ -42,10 +42,3 @@ class ServerNode(object):
         # A timeout might not be wanted in the
         # end, but right now it's super useful.
         requests.put(self.pushFileUrl, files=files, timeout=5)
-
-if __name__ == '__main__':
-    with open("serverip.txt", 'r') as f:
-        ip, port = f.read().strip().split(':')
-    port = int(port)
-    server = ServerNode(ip, port, 707)
-    server.pushFiles(["servernodetest.png", "readings.json"])

@@ -10,7 +10,7 @@
 @menu-color: @secondary-b;
 
 @one-size: 75px;
-@side-padding: 10px;
+@side-padding: 20px;
 
 * { 
   -webkit-backface-visibility: hidden;
@@ -55,11 +55,12 @@ nav {
     list-style: none;
     height: @one-size;
     margin: 0;
+    margin-right: @side-padding;
     li {
       height: @one-size;
       line-height: @one-size;
       float: left;
-      padding: 0 @side-padding 0 @side-padding;
+      padding: 0 @side-padding/2 0 @side-padding/2;
       a {
         display: block;
         height: 100%; 
