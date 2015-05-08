@@ -1,0 +1,25 @@
+extends layout
+
+block append scripts
+	script(src='/js/chart.min.js')
+
+block content
+	h1= title
+	p= nice_name
+ 
+ 
+	table.table
+		thead
+			tr
+				th.table-bordered Sensor Name
+				th.table-bordered Value
+				
+		each sensor, id in sensors
+			tr
+				td.table-bordered= "Temperature"
+				case sensor.type
+					when "temperature"
+						td.table-bordered= (sensor.value / 1000) + "C"
+					when "picture"
+						td.table-bordered
+							img(src="/get_image/"+node_id+"/"+sensor.value,width=300,height=200)

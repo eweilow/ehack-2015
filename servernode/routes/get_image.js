@@ -3,11 +3,11 @@ var fs = require('fs');
 var mimeTypes = require('mime-types');
 var router = express.Router();
 
-/* GET users listing. */
 router.get('/:node_id/:resource_name', function(req, res, next) {
 	try {
 		var file = fs.createReadStream("received_files/" + req.params.node_id + "-" + req.params.resource_name);
 	} catch (e) {
+		res.status(404);
 		res.end();
 		return;
 	}
@@ -16,7 +16,7 @@ router.get('/:node_id/:resource_name', function(req, res, next) {
 		res.write(data);
 	});
 	file.on('end', function() {
-		//res.end();
+		res.end();
 	});
 	file.resume();
 });

@@ -36,3 +36,7 @@ serverip.txt
 # Oh, and we're using Python.
 
 *.pyc
+=======
+received_files
+config
+uploads
