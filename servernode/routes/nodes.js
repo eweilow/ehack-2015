@@ -10,7 +10,9 @@ router.get('/:node_id', function(req, res, next) {
 	
 	var connection = req.app.get('connection');
 	var sensor_queries = {};
+	console.log(node.sensors);
 	for (var sensor_id in node.sensors) {
+		console.log(sensor_id, sensor);
 		var sensor = node.sensors[sensor_id];
 		sensor_id = parseInt(sensor_id);
 		switch (sensor.type) {
@@ -18,9 +20,9 @@ router.get('/:node_id', function(req, res, next) {
 			sensor_queries[sensor_id] = function(callback) {
 				connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
 					if (data.length)
-						callback(null, { value: data[0].reading });
+						callback(null, { type: 'temperature', value: data[0].reading });
 					else
-						callback(null, { value: 0 });
+						callback(null, { type: 'temperature', value: 0 });
 				});
 			};
 			break;
@@ -29,9 +31,9 @@ router.get('/:node_id', function(req, res, next) {
 			sensor_queries[sensor_id] = function(callback) {
 				connection.query("SELECT filename FROM sensor_files WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
 					if (data.length)
-						callback(null, { value: data[0].filename });
+						callback(null, { type: 'picture', value: data[0].filename });
 					else
-						callback(null, { value: "" });
+						callback(null, { type: 'picture',  value: "" });
 				});
 			};
 			break;
@@ -42,7 +44,7 @@ router.get('/:node_id', function(req, res, next) {
 	
 	async.parallel(sensor_queries, function(err, sensors) {
 		console.log(sensors);
-		res.render("nodes", { nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
+		res.render("nodes", { node_id: node_id, nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
 	});
 });
 
