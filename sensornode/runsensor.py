@@ -41,7 +41,11 @@ class SensorNode(object):
 
         self.sensors = []
         self.addSensor(CameraSensor)
-        self.addSensor(ThermometerSensor)
+
+        try:
+            self.addSensor(ThermometerSensor)
+        except thermometer.NoThermometerError:
+            pass
 
         self.pusher = self.addSensor(Pusher) # Not a sensor, but...
 
