@@ -27,3 +27,12 @@ build/Release
 node_modules
 
 uploads
+
+# The server IP and other test things shouldn't be commited, yo!
+
+servernodetest.png
+serverip.txt
+
+# Oh, and we're using Python.
+
+*.pyc
