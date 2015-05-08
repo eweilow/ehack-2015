@@ -43,6 +43,7 @@ def updateRecursiveDictionary(d1, d2):
 class Commander(object):
     def __init__(self, node, host=HOST, port=PORT):
         self.node = node
+        SocketServer.TCPServer.allow_reuse_address = True
         self.server = SocketServer.TCPServer((host, port), self.handler())
 
     commandHandlers = commandHandlers
@@ -70,6 +71,4 @@ class Commander(object):
         Thread(target=self.server.serve_forever).start()
 
     def close(self):
-        print "Trying to close TCP server..."
         self.server.shutdown()
-        print "Closed TCP server!"
