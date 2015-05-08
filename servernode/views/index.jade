@@ -1,21 +1,52 @@
 extends layout
-
-block content
-  //p= JSON.stringify(data)
-  h1= title
-  p Welcome to #{title}
-  
-  table.table
-    thead
-      tr
-        th.table-bordered ID
-        th.table-bordered Name
-        th.table-bordered Temp(C)
+block js
+  script.
+    var tempscale = { 15:{r:70,g:120,b:255}, 20:{r:70,g:210,b:240}, 25:{r:65,g:240,b:120}, 30:{r:240,g:230,b:65}, 35:{r:240,g:120,b:65}, 40:{r:240,g:70,b:70} };
+    var interpolate = function(t, k) { 
+      var factor = (t%5.0) / 5; var keys = Object.keys(tempscale); 
+      var i = 0; while(i+1 < keys.length && keys[++i] <= t) { } 
+      return Math.floor(tempscale[keys[i-1]][k] + (tempscale[keys[i]][k] - tempscale[keys[i-1]][k]) * factor); 
+    }
+    $(document).ready( function(){
+      function update() {
+        $(".tempReading").each(function(){
+          var $self = $(this);
+          
+          var temp = $self.attr("temp");
+          var r = interpolate(temp, "r")
+          var g = interpolate(temp, "g")
+          var b = interpolate(temp, "b")
+          
+          $self.css("background", "rgb("+r+","+g+","+b+")")
+          
+          $self.attr("temp", parseFloat(temp)+0.1);
+          $self.text(Math.floor($self.attr("temp")*100)/100.0 + "°C")
+        });
         
-    each node in data
-      tr
-        td.table-bordered= node.id
-        td.table-bordered
-          a(href="/nodes/"+node.id)= node.nice_name
-        td.table-bordered= "placeholder 'yo"
+      }
       
+      update();
+        window.setInterval(update, 100);
+    }); 
+    
+block content
+  .grid
+    each node in data
+      -var inactive = 50
+      -node.LastReading = 5
+      -node.Readings = [5]
+      .gridItem
+        .wrapper
+          a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
+            header= node.nice_name
+            //each hex, temp in tempscale
+              if(temp > node.Readings[0]) 
+                -hexCode = hex
+                -break
+            .imageWrapper
+              img(src="servernodetest.png").innerPicture
+            if(node.LastReading > inactive)
+              .timeSinceUpdate 
+                .innerTimeWrapper
+                  span.center Offline
+            .tempReading(temp=node.Readings[0]) #{node.Readings[0]}°C
