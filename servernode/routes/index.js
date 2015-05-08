@@ -9,4 +9,10 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.post("/", function (req, res) {
+  nodes.niceTransform(function (dataRes) {
+    res.json(dataRes);
+  });
+});
+
 module.exports = router;

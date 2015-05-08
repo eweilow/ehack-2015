@@ -13,6 +13,7 @@ block js
           var $self = $(this);
           
           var temp = $self.attr("temp");
+          $self.text(Math.floor(temp*10)/10 + "°C");
           var r = interpolate(temp, "r")
           var g = interpolate(temp, "g")
           var b = interpolate(temp, "b")
@@ -21,6 +22,27 @@ block js
           
         });
       }
+      
+      var savereq = false;
+      window.setInterval(function(){
+        if(savereq) savereq.abort();
+        savereq = $.ajax({
+          url: "/",
+          context: document.body,
+          method: "POST",
+          data: {  }
+        }).done(function(data) {
+          for(var id in data) {
+            var node = data[id];
+            var $it = $("[node-id="+id+"]");
+            var $temp = $it.find(".tempReading");
+            $temp.attr("temp", node.Readings[0] / 1000.0);
+          }
+          
+          update();          
+          delete savereq;
+        });
+      }, 1000);
       
       update();
     }); 
@@ -31,17 +53,17 @@ block content
       -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
-            header= node.nice_name
+          a.inner(node-id=node.id, href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
+            header= node.NiceName
             //each hex, temp in tempscale
               if(temp > node.Readings[0]) 
                 -hexCode = hex
                 -break
             .imageWrapper
-              img(src=FileName).innerPicture
+              img(src=node.FileName).innerPicture
             if(node.LastReading > inactive)
               .timeSinceUpdate 
                 .innerTimeWrapper
                   span.center Offline
             -var temp = node.Readings[0] / 1000.0
-            .tempReading(temp=temp) #{temp}°C
+            .tempReading(temp=temp) 
