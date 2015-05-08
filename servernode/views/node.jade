@@ -39,7 +39,7 @@ block js
           sensor.chart = new Chart($element.find("canvas").get(0).getContext('2d')).Line(data, {
             pointDot: false,
             skipLabels: true,
-            bezierCurve: false
+            bezierCurve: true
           });
         }
         update_readout(id, sensor);
@@ -64,6 +64,7 @@ block content
     h1
       span nod: 
       | #{nice_name}
+      a(href="/create/remove/" + node_id).remove ta bort
    
     each sensor, id in sensors
       case sensor.type

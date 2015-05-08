@@ -6,7 +6,13 @@ var async = require('async');
 router.get('/:node_id', function(req, res, next) {
 	var node_id = req.params.node_id;
 	
-	var node = nodes.list[0];
+  console.log(nodes.list);
+  var node = null;  
+  for (var key in nodes.list)
+  {
+    console.log(nodes.list[key].id, node_id);
+    if (nodes.list[key].id == node_id) node = nodes.list[key];
+  }
 	
 	var connection = req.app.get('connection');
 	var sensor_queries = {};

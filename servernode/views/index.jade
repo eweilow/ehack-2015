@@ -54,6 +54,7 @@ block content
         .wrapper
           a.inner(href="/node/"+id, class=node.LastReading > inactive || !node.Readings[0] ? "inactive": "")
             header= node.NiceName
+            .closeIcon X
             //each hex, temp in tempscale
               if(temp > node.Readings[0]) 
                 -hexCode = hex
