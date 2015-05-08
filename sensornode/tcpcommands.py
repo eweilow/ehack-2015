@@ -70,6 +70,6 @@ class Commander(object):
         Thread(target=self.server.serve_forever).start()
 
     def close(self):
-        print "Closing."
+        print "Trying to close TCP server..."
         self.server.shutdown()
-        print "Closed server."
+        print "Closed TCP server!"

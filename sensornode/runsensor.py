@@ -248,7 +248,7 @@ def thermometerReading(t, temperature):
 
 def cputempReading(t, temperature):
     t = int(t * 1000)
-    temperature = int(thermometer.check() * 1000)
+    temperature = int(temperature * 1000)
     return {
         "sensoroffset": 1, # NEJDÅ ERIK
         "type": 1,
