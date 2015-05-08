@@ -24,7 +24,7 @@ nodes.niceTransform = function (callback) {
       if (err) return console.log(err);
       
       var parser = function (index) {
-        if (index + 1 >= list.length) return callback(res);
+        if (index + 1 > list.length) return callback(res);
         var node = list[index];
         
         //console.log(node);
