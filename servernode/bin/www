@@ -32,7 +32,7 @@ console.log("Reading node list");
 connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodestatus.nodeid", function(err, data) {
 	console.log(data);
 	data.forEach(function(node_data) {
-		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, 5002, node_data.laststatus > 0, 0); // TODO: read out last update time
+		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, 5048, node_data.laststatus > 0, 0); // TODO: read out last update time
 		connection.query("SELECT * FROM sensorinfo WHERE nodeid = ?", [node.id], function(err, data) {
 			data.forEach(function(sensor_info) {
 				node.sensors[sensor_info.id] = { type: sensor_info.sensortype };
@@ -42,15 +42,16 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 			console.log("Pinged node", status);
 		});
 		node.push_config({
-			sensors: {
-				temperature: {
-					delay: 1
-				},
-				camera: {
-					"delay": 5
-				}
+			"camera": {
+				"delay": 1,
+				"resolution": [640, 480]
 			},
-			push_delay: 5
+			"thermometer": {
+				"delay": 1
+			},
+			"push": {
+				"delay": 1
+			}
 		});
 		nodes.list.push(node);
 	});

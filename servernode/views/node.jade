@@ -1,7 +1,20 @@
 extends layout
 
-block append scripts
+block js
 	script(src='/js/chart.min.js')
+	script.
+		var sensors = !{JSON.stringify(sensors)};
+		$(document).ready(function() {
+			for (var id in sensors) {
+				var sensor = sensors[id];
+				switch sensor.type {
+					case 1:
+					let $element = $("[node-id="+id+"]");
+					sensor.chart = new Chart($element.find("canvas").get(0).getContext('2d')).PolarArea({ });
+					break;
+				}
+			}
+		});
 
 block content
 	h1= title
@@ -18,8 +31,9 @@ block content
 			tr
 				td.table-bordered= "Temperature"
 				case sensor.type
-					when "temperature"
-						td.table-bordered= (sensor.value / 1000) + "C"
-					when "picture"
+					when 1
+						td.table-bordered(sensor-id=id)
+							canvas(width=500, height=300)
+					when 2
 						td.table-bordered
-							img(src="/"+node_id+"-"+sensor.value,width=300,height=200)
+							img(sensor-id=id, src="/"+node_id+"-"+sensor.value,width=300,height=200)

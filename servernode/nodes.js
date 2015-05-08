@@ -75,9 +75,9 @@ SensorNode.prototype.open_socket = function(callback) {
 	
 	this.socket.on('connect', function() {
 		node.state = STATE_CONNECTED;
-		if (this.queued_config) {
-			this.push_config(this.queued_config);
-			this.queued_config = null;
+		if (node.queued_config) {
+			node.push_config(node.queued_config);
+			node.queued_config = null;
 		}
 		callback(true);
 	});
@@ -111,7 +111,7 @@ SensorNode.prototype.set_last_status = function(status) { // TODO: update time
 SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts
 	if (this.state != STATE_CONNECTED) {
 		var node = this;
-		this.open_socket(function(status) {
+		this.open_socket(function(status) { // TODO: fix this shit
 			if (status) {
 				node.ping(callback);
 			} else {
@@ -128,10 +128,35 @@ SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts
 
 SensorNode.prototype.push_config = function(config) {
 	if (this.state == STATE_CONNECTED) {
-		this.socket.write("\1");
+		var encoded = new Buffer(JSON.stringify(config));
+		var message = new Buffer(5+encoded.length);
+		message.writeUIntLE(1, 0, 1);
+		message.writeUIntLE(encoded.length, 1, 4);
+		encoded.copy(message, 5);
+		this.socket.write(message);
 	} else {
 		this.queued_config = config;
 		this.open_socket(function() { });
+	}
+}
+
+nodes.read_sensor = function(sensor_id, type, callback) {
+	var connection = nodes.app.get('connection');
+	switch (type) {
+		case 1:
+		connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = ? ORDER BY time DESC LIMIT 100", [sensor_id], function(err, data) {
+			callback(data.map(function(row) { return { value: row.reading, time: row.time }; }));
+		});
+		break;
+		
+		case 2:
+		connection.query("SELECT filename FROM sensor_files WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
+			if (data.length)
+				callback(data[0].filename);
+			else
+				callback(null);
+		});
+		break;
 	}
 }
 
