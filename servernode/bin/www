@@ -42,6 +42,7 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 			console.log("Pinged node", status);
 		});
 		node.push_config({
+			"id": node.id,
 			"camera": {
 				"delay": 1,
 				"resolution": [640, 480]
