@@ -42,16 +42,18 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 			console.log("Pinged node", status);
 		});
 		node.push_config({
-			"id": node.id,
-			"camera": {
-				"delay": 1,
-				"resolution": [640, 480]
-			},
-			"thermometer": {
-				"delay": 1
-			},
-			"push": {
-				"delay": 1
+			"node_id": node.id,
+			"sensors": {
+				"camera":{
+					"delay": 1,
+					"resolution": [640, 480]
+				},
+				"thermometer": {
+					"delay": 1
+				},
+				"push": {
+					"delay": 1
+				}
 			}
 		});
 		nodes.list.push(node);
