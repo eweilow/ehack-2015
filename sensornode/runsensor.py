@@ -5,6 +5,7 @@ import json
 import sys
 import Queue
 import time
+import cputemp
 import tcpcommands
 import thermometer
 from collections import OrderedDict
@@ -31,6 +32,7 @@ class Drain(object):
 class SensorNode(object):
     def __init__(self, configPath="config.json"):
         self.configPath = configPath
+
         with open(self.configPath, 'r') as f:
             self.config = json.load(f)
 
@@ -39,10 +41,13 @@ class SensorNode(object):
         # config.
         self.commander = tcpcommands.Commander(self)
 
+        # Naturally, statically always adding the same two-three sensors
+        # isn't very flexible, but in our case it works pretty well.
         self.sensors = []
         self.addSensor(CameraSensor)
         if thermometer.exists():
             self.addSensor(ThermometerSensor)
+        self.addSensor(CpuTempSensor)
 
         self.pusher = self.addSensor(Pusher) # Not a sensor, but...
 
@@ -63,8 +68,6 @@ class SensorNode(object):
         return sensor
 
     def setServer(self, ip, port):
-        if ip == self.ip and port == self.port:
-            return
         self.ip = ip
         self.port = port
         self.server = ServerNode(ip, port, self.config["node_id"])
@@ -177,6 +180,14 @@ class CameraSensor(Sensor):
             self.node.readingQueue.put(reading)
             self.node.fileQueue.put((reading["filename"], f.read()))
 
+class CpuTempSensor(Sensor):
+    def __init__(self, node, sensorId="cputemp"):
+        Sensor.__init__(self, node, sensorId)
+
+    def do(self):
+        reading = cputempReading(time.time(), cputemp.check())
+        self.node.readingQueue.put(reading)
+
 class Pusher(Sensor):
     # I mean, it's not a sensor, but it works the same way.
     def __init__(self, node):
@@ -218,20 +229,29 @@ class Pusher(Sensor):
                 self.node.fileQueue.put((filename, data))
 
 def cameraReading(t, extension=".jpg"):
-    t = int(time.time() * 1000)
+    t = int(t * 1000)
     return {
-        "sensor_id": 2,
-        "type": "camera",
+        "type": 2,
         "time": t,
         "filename": str(t) + extension
     }
 
 def thermometerReading(t, temperature):
-    t = int(time.time() * 1000)
+    t = int(t * 1000)
     temperature = int(thermometer.check() * 1000)
     return {
-        "sensor_id": 1,
-        "type": "thermometer",
+        "sensoroffset": 0, # HEJDÅ ERIK
+        "type": 1,
+        "time": t,
+        "temperature": temperature
+    }
+
+def cputempReading(t, temperature):
+    t = int(t * 1000)
+    temperature = int(thermometer.check() * 1000)
+    return {
+        "sensoroffset": 1, # NEJDÅ ERIK
+        "type": 1,
         "time": t,
         "temperature": temperature
     }
