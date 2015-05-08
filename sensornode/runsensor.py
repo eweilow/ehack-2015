@@ -11,7 +11,7 @@ from collections import OrderedDict
 from io import BytesIO
 from threading import Thread
 from picamera.camera import PiCamera
-from requests import ConnectionError
+from requests import ConnectionError, Timeout
 from servernode import ServerNode
 
 def threadsafePrint(s):
@@ -29,46 +29,50 @@ class Drain(object):
                 break
 
 class SensorNode(object):
-    def __init__(self):
-        with open("serverip.txt", 'r') as f:
-            ip, port = f.read().strip().split(':')
-        port = int(port)
-        nodeId = 10
+    def __init__(self, configPath="config.json"):
+        self.configPath = configPath
+        with open(self.configPath, 'r') as f:
+            self.config = json.load(f)
 
-        self.server = ServerNode(ip, port, nodeId)
+        # Connect to the sensor node via TCP and send it \x00 or \x01 + a
+        # JSON config to bind it to your IP. It'll start pushing according to
+        # config.
         self.commander = tcpcommands.Commander(self)
 
         self.sensors = []
         self.addSensor(CameraSensor)
         self.addSensor(ThermometerSensor)
 
-        self.addSensor(Pusher) # Not a sensor, but...
+        self.pusher = self.addSensor(Pusher) # Not a sensor, but...
 
         self.fileQueue = Queue.Queue()
         self.readingQueue = Queue.Queue()
 
-        self.config = {
-            "sensors": {
-                "camera": {
-                    "delay": 1,
-                    "resolution": [640, 480]
-                },
-                "thermometer": {
-                    "delay": 1
-                },
-                "push": {
-                    "delay": 1
-                }
-            }
-        }
-
+    server = None
+    ip = None
+    port = None
     exitSignalReceived = False
 
     def addSensor(self, class_, sensorId=None):
         if sensorId is None:
-            self.sensors.append(class_(self))
+            sensor = class_(self)
         else:
-            self.sensors.append(class_(self, sensorId))
+            sensor = class_(self, sensorId)
+        self.sensors.append(sensor)
+        return sensor
+
+    def setServer(self, ip, port):
+        if ip == self.ip and port == self.port:
+            return
+        self.ip = ip
+        self.port = port
+        self.server = ServerNode(ip, port, self.config["nodeId"])
+        threadsafePrint("Bound node to {}:{}.".format(
+            str(self.ip), str(self.port)))
+        self.push()
+
+    def push(self):
+        self.pusher.do()
 
     def run(self):
         Thread(target=self.commander.run).start()
@@ -178,6 +182,9 @@ class Pusher(Sensor):
         Sensor.__init__(self, node, "push")
 
     def do(self):
+        if self.node.server is None:
+            threadsafePrint("Not pushing - not connected to a server.")
+            return
         if self.node.readingQueue.empty():
             threadsafePrint("Not pushing - empty queue.")
             return
@@ -198,7 +205,8 @@ class Pusher(Sensor):
         try:
             r = self.node.server.pushFiles(dataList + [readingsJson],
                 filenames + ["readings.json"], isData=True)
-        except (ConnectionError, requests.exceptions.Timeout):
+        except (ConnectionError, Timeout) as e:
+            threadsafePrint(str(e))
             threadsafePrint("Couldn't send files to server. Re-queuing data.")
             for reading in j["readings"]:
                 while self.node.readingQueue.qsize() >= 5000:
@@ -226,13 +234,6 @@ def thermometerReading(t, temperature):
         "type": "thermometer",
         "time": t,
         "temperature": temperature
-    }
-
-def wrapReading(reading):
-    return {
-        "readings": [
-            reading
-        ]
     }
 
 if __name__ == '__main__':

@@ -10,6 +10,7 @@ from threading import Thread
 
 HOST = "0.0.0.0"
 PORT = 5048
+PUSHPORT = 3000
 
 commandHandlers = {}
 
@@ -24,6 +25,9 @@ def configHandler(request, node):
     config = json.loads(configJson)
 
     updateRecursiveDictionary(node.config, config)
+
+    with open(node.configPath, 'w') as f:
+        json.dump(node.config, f, indent=4)
 
 commandHandlers[1] = configHandler
 
@@ -51,7 +55,8 @@ class Commander(object):
                 data = self.request.recv(1)
                 print "Received command {}. Executing.".format(str(ord(data)))
 
-                commander.node.
+                commander.node.setServer(self.request.getpeername()[0],
+                    PUSHPORT)
 
                 commandHandlers[ord(data)](self.request, commander.node)
         return CommandHandler
