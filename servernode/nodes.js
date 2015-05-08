@@ -144,17 +144,17 @@ SensorNode.prototype.push_config = function(config) {
 	}
 }
 
-nodes.read_sensor = function(sensor_id, type, callback) {
+nodes.read_sensor = function(id, type, callback) {
 	var connection = nodes.app.get('connection');
 	switch (type) {
 		case 1:
-		connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensoroffset = ? ORDER BY time DESC LIMIT 30", [0], function(err, data) {
+		connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE id = ? AND sensoroffset = ? ORDER BY time DESC LIMIT 30", [id, 0], function(err, data) {
 			callback(data.map(function(row) { return { value: row.reading, time: row.time }; }));
 		});
 		break;
 		
 		case 2:
-		connection.query("SELECT filename FROM sensor_files ORDER BY time DESC LIMIT 1", function(err, data) {
+		connection.query("SELECT filename FROM sensor_files WHERE id = ? ORDER BY time DESC LIMIT 1", [id], function(err, data) {
 			if (data.length)
 				callback(data[0].filename);
 			else

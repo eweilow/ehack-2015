@@ -17,10 +17,10 @@ router.get('/:node_id', function(req, res, next) {
 	var sensor_queries = {};
 	for (var key in node.sensors) {
 		var sensor = node.sensors[key];
-		var sensor_id = parseInt(key);
-		sensor_queries[sensor_id] = function(sensor, sensor_id) {
+		
+		sensor_queries[key] = function(sensor, key) {
 			return function(callback) {
-				nodes.read_sensor(sensor_id, sensor.type, function(data) {
+				nodes.read_sensor(node_id, sensor.type, function(data) {
 					if (data) {
 						callback(null, { type: sensor.type,  value: data });
 					} else {
@@ -28,7 +28,7 @@ router.get('/:node_id', function(req, res, next) {
 					}
 				});
 			};
-		}(sensor, sensor_id);
+		}(sensor, key);
 	}
 	
 	async.parallel(sensor_queries, function(err, sensors) {
