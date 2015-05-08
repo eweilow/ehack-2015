@@ -14,9 +14,14 @@ try:
     thermometerPath = os.path.join(glob.glob("/sys/bus/w1/devices/28-*")[0],
         "w1_slave")
 except IndexError:
-    raise NoThermometerError
+    thermometerPath = None
+
+def exists():
+    return thermometerPath is not None
 
 def check():
+    if not exists():
+        raise NoThermometerError
     with open(thermometerPath, 'r') as f:
         thermometerOutput = f.read()
     lines = thermometerOutput.split('\n')
