@@ -29,7 +29,6 @@ block content
   .grid
     each node in data
       -var inactive = 50
-      p= node.LastReading
       .gridItem
         .wrapper
           a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
@@ -39,9 +38,10 @@ block content
                 -hexCode = hex
                 -break
             .imageWrapper
-              img(src="servernodetest.png").innerPicture
+              img(src=FileName).innerPicture
             if(node.LastReading > inactive)
               .timeSinceUpdate 
                 .innerTimeWrapper
                   span.center Offline
-            .tempReading(temp=node.Readings[0]) #{node.Readings[0]}°C
+            -var temp = node.Readings[0] / 1000.0
+            .tempReading(temp=temp) #{temp}°C
