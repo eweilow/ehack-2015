@@ -67,7 +67,7 @@ timers.setInterval(function() {
 			console.log("Pinged node", status);
 		});
 	});
-}, 1000);
+}, 10000);
 
 var server = http.createServer(app);
 server.listen(3000);
