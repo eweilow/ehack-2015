@@ -19,8 +19,6 @@ block js
           var b = interpolate(temp, "b")
           
           $self.css("background", "rgb("+r+","+g+","+b+")")
-          
-          console.log(Math.floor(parseFloat(temp)*10)/10 + "°C")
         });
       }
       
@@ -33,13 +31,10 @@ block js
           method: "POST",
           data: {  }
         }).done(function(data) {
-          console.log(data);
           for(var id in data) {
             var node = data[id];
             
             var $temp = $("[node-id="+id+"]");
-            //var $temp = $it.find(".tempReading");
-            console.log($temp);
             $temp.attr("temp", (node.Readings[0] / 1000.0));
             $temp.parent().find("img").attr("src", node.FileName);
           }          
