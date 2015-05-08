@@ -13,7 +13,7 @@ class NoThermometerError(Exception):
 try:
     thermometerPath = os.path.join(glob.glob("/sys/bus/w1/devices/28-*")[0],
         "w1_slave")
-except IndexError: /sys/class/thermal/thermal_zone0
+except IndexError:
     thermometerPath = None
 
 def exists():
