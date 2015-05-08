@@ -1,50 +1,45 @@
 extends layout
 block js
   script.
+    var tempscale = { 15:{r:70,g:120,b:255}, 20:{r:70,g:210,b:240}, 25:{r:65,g:240,b:120}, 30:{r:240,g:230,b:65}, 35:{r:240,g:120,b:65}, 40:{r:240,g:70,b:70} };
+    var interpolate = function(t, k) { 
+      var factor = (t%5.0) / 5; var keys = Object.keys(tempscale); 
+      var i = 0; while(keys[++i] <= t) { } 
+      return Math.floor(tempscale[keys[i-1]][k] + (tempscale[keys[i]][k] - tempscale[keys[i-1]][k]) * factor); 
+    }
     $(document).ready( function(){
-    
-      var c = $('.respondCanvas'); 
-           
-      $(window).resize( respondCanvas );   
-           
-      function respondCanvas(){ 
-        c.each(function(){
-          var container = $(this).parent();
-          var ctx = this.getContext('2d');
+      function update() {
+        $(".tempReading").each(function(){
+          var $self = $(this);
           
-          var w = $(container).width();
-          var h = $(container).height();
-          $(this).attr('width', w ); //max width
-          $(this).attr('height', h ); //max height   
+          var temp = $self.attr("temp");
+          var r = interpolate(temp, "r")
+          var g = interpolate(temp, "g")
+          var b = interpolate(temp, "b")
           
-          var img = $(container).find(".innerPicture");
-                 
-          ctx.fillStyle = "#FFF100";
-          ctx.drawImage(img,0,0,w,h);
-          //Call a function to redraw other content (texts, images etc)          
+          $self.css("background", "rgb("+r+","+g+","+b+")")
         });
       }
-      //Initial call 
-      respondCanvas();
+      
+      update();
     }); 
     
 block content
-  -var tempscale = { 15: "#3571b8", 20: "#4fbfa1", 25: "#efe763", 30: "#f2696a" };
   .grid
     each node, id in data
+      -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(href="/node/"+id)
-            -var hexCode = "#ff0000"
+          a.inner(href="/node/"+id, class=node.LastReading > inactive ? "inactive": "")
             header= node.NiceName
-            each hex, temp in tempscale
+            //each hex, temp in tempscale
               if(temp > node.Readings[0]) 
                 -hexCode = hex
                 -break
             .imageWrapper
-              canvas(width=100,height=100).respondCanvas
               img(src="servernodetest.png").innerPicture
-            .timeSinceUpdate 
-              .innerTimeWrapper
-                span.center +#{node.LastReading}s
-            .tempReading(style="background: " + hexCode) #{node.Readings[0]}°C
+            if(node.LastReading > inactive)
+              .timeSinceUpdate 
+                .innerTimeWrapper
+                  span.center Offline
+            .tempReading(temp=node.Readings[0]) #{node.Readings[0]}°C

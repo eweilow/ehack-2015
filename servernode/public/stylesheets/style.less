@@ -14,6 +14,7 @@
 
 * { 
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   margin: 0; padding: 0; 
   .box-sizing(border-box);
 }
@@ -111,7 +112,7 @@ nav {
         position: relative;
         background: 1px solid rgba(0,0,0,0.5);
         
-        .drop-shadow(0, 0, 15px, 0, 0.1);
+        .drop-shadow(0, 0, 15px, 0, 0.15);
         
         h2 { padding: 5px; }
         h3 { padding: 5px; color: rgba(0,0,0,0.5); }
@@ -184,7 +185,25 @@ nav {
           top: 0; }
         }
         
-        &:hover {
+        &.inactive {
+          opacity: 1.0;
+          .transition(opacity 0.1s);
+        }
+        &.inactive:hover {
+          opacity: 0.9; 
+        }
+        &.inactive .timeSinceUpdate {
+          background: rgba(0,0,0,0.1); 
+        }
+        &.inactive .imageWrapper img {
+          filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+        }
+        &.inactive .tempReading {
+          background: #aaa !important; 
+        }
+        &:hover:not(.inactive) {
           .timeSinceUpdate {
             color: rgba(0,0,0,0.0);
           }

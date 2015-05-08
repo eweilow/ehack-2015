@@ -7,7 +7,7 @@ module.exports.mockup = {
   },
   3: {
     NiceName: "Sprint-Wall",
-    Readings: [ 23, 22.5, 22, 22.1, 27 ],
+    Readings: [ 23.1, 22.5, 22, 22.1, 27 ],
     LastReading: 17.3,
     Interval: 2.0
   },
@@ -25,7 +25,7 @@ module.exports.mockup = {
   },
   32: {
     NiceName: "Sprint-Floor",
-    Readings: [ 22, 22.5, 22, 22.1, 27 ],
+    Readings: [ 22.01, 22.5, 22, 22.1, 27 ],
     LastReading: 17.3,
     Interval: 2.0
   },
