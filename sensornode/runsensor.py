@@ -207,7 +207,6 @@ class Pusher(Sensor):
             r = self.node.server.pushFiles(dataList + [readingsJson],
                 filenames + ["readings.json"], isData=True)
         except (ConnectionError, Timeout) as e:
-            threadsafePrint(str(e))
             threadsafePrint("Couldn't send files to server. Re-queuing data.")
             for reading in j["readings"]:
                 while self.node.readingQueue.qsize() >= 5000:
