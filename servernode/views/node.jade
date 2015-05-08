@@ -38,7 +38,8 @@ block js
 					};
 					sensor.chart = new Chart($element.find("canvas").get(0).getContext('2d')).Line(data, {
 						pointDot: false,
-						skipLabels: true
+						skipLabels: true,
+						bezierCurve: false
 					});
 				}
 				update_readout(id, sensor);
