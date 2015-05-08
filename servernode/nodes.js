@@ -29,10 +29,10 @@ nodes.niceTransform = function (callback) {
         
         //console.log(node);
         
-        connection.query("SELECT reading FROM temperaturereading WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 1 LIMIT 1) ORDER BY unixmilliseconds DESC LIMIT 1", [node.id], function (err, data) {
+        connection.query("SELECT reading FROM temperaturereading WHERE sensoroffset = 0 AND id = ? ORDER BY unixmilliseconds DESC LIMIT 1", [node.id], function (err, data) {
           if (err) throw err;
           
-          connection.query("SELECT filename FROM sensor_files WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 2 LIMIT 1) ORDER BY time DESC LIMIT 1", [node.id], function (err, data2) {
+          connection.query("SELECT filename FROM sensor_files WHERE id = ? ORDER BY time DESC LIMIT 1", [node.id], function (err, data2) {
             if (err) throw err;
             
             

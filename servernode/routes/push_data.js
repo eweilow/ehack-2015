@@ -6,7 +6,7 @@ var nodes = require('../nodes');
 var router = express.Router();
 
 function handle_data(app, data, id, files) {
-	console.log(data);
+	console.log("Data", data);
 	var connection = app.get('connection');
 	
   var node = null;  
@@ -16,13 +16,13 @@ function handle_data(app, data, id, files) {
   }
   
 	data.readings.forEach(function(readout) {		
-		var sensor = node.sensors[readout.sensor_id];
-		if (!sensor) {
+		//var sensor = node.sensors[readout.sensor_id];
+		if (!readout) {
 			return;
 		}
-		switch (sensor.type) {
+		switch (readout.type) {
 			case 1:
-			connection.query("INSERT INTO temperaturereading(id, sensoroffset, reading, unixmilliseconds) VALUES(?, ?, ?, ?)", [node.id, readout.sensoroffset, readout.temperature, readout.time], function(err) { });
+			connection.query("INSERT INTO temperaturereading(id, sensoroffset, reading, unixmilliseconds) VALUES(?, ?, ?, ?)", [node.id, readout.sensoroffset, readout.temperature, readout.time], function(err) { console.log(err); });
 			break;
 			
 			case 2:

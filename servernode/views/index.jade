@@ -49,10 +49,11 @@ block js
 block content
   .grid
     each node, id in data
+      p= JSON.stringify(node)
       -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(href="/node/"+id, class=node.LastReading > inactive || !node.Readings[0] ? "inactive": "")
+          a.inner(href="/node/"+id, class=node.LastReading > inactive && !node.Readings[0] ? "inactive": "")
             header= node.NiceName
             .closeIcon X
             //each hex, temp in tempscale
@@ -66,4 +67,5 @@ block content
                 .innerTimeWrapper
                   span.center Offline
             -var temp = parseFloat(node.Readings[0] / 1000.0 || 0.0)
-            .tempReading(node-id=id, temp=temp) 
+            unless node.LastReading > inactive || !node.Readings[0]
+              .tempReading(node-id=id, temp=temp) 
