@@ -10,7 +10,6 @@ router.get('/:node_id', function(req, res, next) {
   var node = null;  
   for (var key in nodes.list)
   {
-    console.log(nodes.list[key].id, node_id);
     if (nodes.list[key].id == node_id) node = nodes.list[key];
   }
 	

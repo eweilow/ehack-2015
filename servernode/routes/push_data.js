@@ -8,7 +8,13 @@ var router = express.Router();
 function handle_data(app, data, id, files) {
 	console.log(data);
 	var connection = app.get('connection');
-	var node = nodes.list[0]; // TODO: grab the right node
+	
+  var node = null;  
+  for (var key in nodes.list)
+  {
+    if (nodes.list[key].id == id) node = nodes.list[key];
+  }
+  
 	data.readings.forEach(function(readout) {		
 		var sensor = node.sensors[readout.sensor_id];
 		if (!sensor) {
