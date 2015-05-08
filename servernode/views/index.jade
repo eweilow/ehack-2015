@@ -20,7 +20,7 @@ block js
           
           $self.css("background", "rgb("+r+","+g+","+b+")")
           
-          console.log(Math.floor(temp*10)/10 + "°C")
+          console.log(Math.floor(parseFloat(temp)*10)/10 + "°C")
         });
       }
       
@@ -57,7 +57,7 @@ block content
       -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(href="/node/"+id, class=node.LastReading > inactive ? "inactive": "")
+          a.inner(href="/node/"+id, class=node.LastReading > inactive || !node.Readings[0] ? "inactive": "")
             header= node.NiceName
             //each hex, temp in tempscale
               if(temp > node.Readings[0]) 
@@ -69,5 +69,5 @@ block content
               .timeSinceUpdate 
                 .innerTimeWrapper
                   span.center Offline
-            -var temp = node.Readings[0] / 1000.0
+            -var temp = parseFloat(node.Readings[0] / 1000.0 || 0.0)
             .tempReading(node-id=id, temp=temp) 

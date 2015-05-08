@@ -10,27 +10,52 @@ router.get('/:node_id', function(req, res, next) {
 	
 	var connection = req.app.get('connection');
 	var sensor_queries = {};
-	console.log(node.sensors);
 	for (var key in node.sensors) {
 		var sensor = node.sensors[key];
 		var sensor_id = parseInt(key);
-		sensor_queries[sensor_id] = function(callback) {
-			nodes.read_sensor(sensor_id, sensor.type, function(data) {
-				if (data) {
-					console.log(sensor.type);
-					callback(null, { type: sensor.type,  value: data });
-				} else {
-					callback(null, { type: 0,  value: "" });
-				}
-			})
-		};
+		sensor_queries[sensor_id] = function(sensor, sensor_id) {
+			return function(callback) {
+				nodes.read_sensor(sensor_id, sensor.type, function(data) {
+					if (data) {
+						callback(null, { type: sensor.type,  value: data });
+					} else {
+						callback(null, { type: 0,  value: "" });
+					}
+				});
+			};
+		}(sensor, sensor_id);
 	}
 	
-	console.log(sensor_queries);
+	async.parallel(sensor_queries, function(err, sensors) {
+		res.render("node", { node_id: node_id, nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
+	});
+});
+
+router.post("/:node_id/", function(req, res) {
+	var node_id = req.params.node_id;
+	
+	var node = nodes.list[0];
+	
+	var connection = req.app.get('connection');
+	var sensor_queries = {};
+	for (var key in node.sensors) {
+		var sensor = node.sensors[key];
+		var sensor_id = parseInt(key);
+		sensor_queries[sensor_id] = function(sensor, sensor_id) {
+			return function(callback) {
+				nodes.read_sensor(sensor_id, sensor.type, function(data) {
+					if (data) {
+						callback(null, { type: sensor.type,  value: data });
+					} else {
+						callback(null, { type: 0,  value: "" });
+					}
+				});
+			};
+		}(sensor, sensor_id);
+	}
 	
 	async.parallel(sensor_queries, function(err, sensors) {
-		console.log(sensors);
-		res.render("node", { node_id: node_id, nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
+		res.json(sensors);
 	});
 });
 

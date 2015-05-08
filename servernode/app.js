@@ -32,8 +32,8 @@ app.use(express.static(path.join(__dirname, 'received_files')));
 app.use('/', routes);
 app.use('/push_data', push_data);
 app.use('/node', require('./routes/node'));
-app.use('/forms', require('./routes/forms'));
 app.use('/get_sensor', require('./routes/get_sensor'));
+app.use('/create', require('./routes/forms'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

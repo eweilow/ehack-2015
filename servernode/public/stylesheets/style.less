@@ -18,6 +18,9 @@
   margin: 0; padding: 0; 
   .box-sizing(border-box);
 }
+*:focus {
+    outline: 0;
+}
 
 body {
   width: 100%;
@@ -253,4 +256,59 @@ nav {
     margin-right: auto;
   width:150px;
   
+}
+
+.form {
+  margin-top: 20px;
+  padding: 10px;
+  background: white;
+  width: 50%;
+  margin-left: 25%;
+  
+  .description, .wrap, .ip, .port { display: inline-block; height: @one-size; width: 100%; padding: 10px; .box-sizing(border-box); }
+  .description { height: initial; }
+  .ip { width: 75%; }
+  .port { width: 25%; }
+  
+  
+  input { 
+    width: 100%; height: 100%; margin: 0; padding: 0 10px 0 10px; border: 1px solid rgba(0,0,0,0.2); 
+    font-size: 18px;
+    
+    .transition(border 0.1s);
+    
+    &:focus { border: 1px solid #ED3D4E;  }
+    
+    @placeholder: rgba(0,0,0,0.2);
+    &::-webkit-input-placeholder { color: @placeholder; }
+    &:-moz-placeholder {           color: @placeholder; }
+    &::-moz-placeholder {          color: @placeholder; }
+    &:-ms-input-placeholder {      color: @placeholder; }
+    
+    &[type=submit] {
+      .transition(background 0.1s, color 0.1s);
+      background: white;
+      color: rgba(0,0,0,0.75);
+      cursor:pointer;
+      &:hover { background: #ED3D4E; color: rgba(255,255,255,0.75); }
+    }
+  }
+  
+}
+
+.content { width: 50%; margin-left: 25%; background: white; margin-top: 20px; padding: 20px; }
+  h1 {
+    span {
+      color: rgba(0,0,0,0.25); 
+    }
+    border-bottom: 1px solid #ED3D4E;
+    padding-bottom: 20px;
+  }
+.nodetable { width: 100%; 
+  tr { width: 100%; }
+  .table-left { width: 35%; }
+  .table-right { width: 65%; }
+  thead { 
+    font-weight: bold;
+  }
 }
