@@ -67,7 +67,7 @@ class SensorNode(object):
             return
         self.ip = ip
         self.port = port
-        self.server = ServerNode(ip, port, self.config["nodeId"])
+        self.server = ServerNode(ip, port, self.config["node_id"])
         threadsafePrint("Bound node to {}:{}.".format(
             str(self.ip), str(self.port)))
         self.push()
