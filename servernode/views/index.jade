@@ -32,6 +32,7 @@ block js
           data: {  }
         }).done(function(data) {
           for(var id in data) {
+            console.log(id);
             var node = data[id];
             
             var $temp = $("[node-id="+id+"]");
@@ -59,7 +60,7 @@ block content
               if(temp > node.Readings[0]) 
                 -hexCode = hex
                 -break
-            .imageWrapper
+            .imageWrapper(node-id=id)
               img(src=node.FileName).innerPicture
             if(node.LastReading > inactive)
               .timeSinceUpdate 
