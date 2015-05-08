@@ -1,5 +1,6 @@
 var express = require('express');
 var fs = require('fs');
+var app = require('../app');
 var path = require('path');
 var nodes = require('../nodes');
 var router = express.Router();
@@ -27,29 +28,31 @@ function handle_data(app, data, id, files) {
 
 router.put('/:node_id', function(req, res, next) {
 	console.log(req.body);
-  if (req.busboy) {
-    
-    var reading_data = {};
-    req.busboy.on('file', function (fieldname, stream, filename) {
-      stream.on('data', function (data) {
-        if (!reading_data.hasOwnProperty(filename)) reading_data[filename] = "";
-        reading_data[filename] += data;
-      });
-			stream.resume();
+	if (req.busboy) {
+		var reading_data = "";
+		req.busboy.on('file', function (fieldname, stream, filename) {
+			if (filename == "readings.json") {
+				stream.on('data', function(data) {
+					reading_data += data;
+				})
+				stream.resume();
+			} else {
+				var file = fs.createWriteStream("received_files/" + req.params.node_id + "-" + path.basename(filename));
+				stream.on('data', function(data) {
+					file.write(data);
+				})
+				stream.on('end', function() {
+					file.end();
+				})
+				stream.resume();
+			}
+			console.log(filename, fieldname);
 		});
-    req.busboy.on('finish', function () {
-      for (var filename in reading_data) {
-        if (filename != "readings.json") {
-          var connection = req.app.get('connection');
-          connection.query("INSERT INTO datatable(filename,data) VALUES(?,?)", [filename, reading_data[filename]], function (err) { console.log(err); res.end(); });
-        }
-        else {
-          handle_data(req.app, JSON.parse(reading_data[filename]), req.params.node_id, req.params.node_id, [])
-
-        }
-      }
-	            res.end();
-    });
+		req.busboy.on('finish', function() {
+			console.log(reading_data);
+			handle_data(req.app, JSON.parse(reading_data), req.params.node_id, req.params.node_id, [])
+			res.end();
+		})
 		req.pipe(req.busboy);
 	} else {
 		handle_data(req.app, req.body, req.params.node_id, [])
