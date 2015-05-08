@@ -109,7 +109,7 @@ SensorNode.prototype.open_socket = function(callback) {
 SensorNode.prototype.set_last_status = function(status) { // TODO: update time
 	this.last_status = status;
 	var connection = nodes.app.get('connection');
-  connection.query("UPDATE nodestatus SET laststatus = ?, lastupdate = ? WHERE nodeid = ?", [this.status ? 1 : 0, 0, this.id]);
+  connection.query("UPDATE nodestatus SET laststatus = ?, lastupdate = ? WHERE nodeid = ?", [status ? 1 : 0, 0, this.id]);
 }
 
 SensorNode.prototype.ping = function(callback) { // TODO: ping timeouts
