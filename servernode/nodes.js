@@ -26,13 +26,12 @@ nodes.niceTransform = function (callback) {
       
       //console.log(node);
       
-      connection.query("SELECT reading FROM temperaturereading WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 1 LIMIT 1) LIMIT 1", [node.id], function (err, data) {
+      connection.query("SELECT reading FROM temperaturereading WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 1 LIMIT 1) ORDER BY unixmilliseconds DESC LIMIT 1", [node.id], function (err, data) {
         if (err) throw err;
         
-        connection.query("SELECT filename FROM sensor_files WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 2 LIMIT 1) LIMIT 1", [node.id], function (err, data2) {
+        connection.query("SELECT filename FROM sensor_files WHERE sensorid = (SELECT id FROM sensorinfo WHERE nodeid = ? AND sensortype = 2 LIMIT 1) ORDER BY time DESC LIMIT 1", [node.id], function (err, data2) {
           if (err) throw err;
           
-          console.log(data2);
           
           
           res[node.id] = { NiceName: node.nice_name, FileName: (data2[0] || {}).filename, Readings: [(data[0] || {}).reading], LastReading: 5.0/*(new Date).getTime() - data[0].unixmilliseconds*/, Interval: 1.0 };

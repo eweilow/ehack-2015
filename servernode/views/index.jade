@@ -13,13 +13,14 @@ block js
           var $self = $(this);
           
           var temp = $self.attr("temp");
-          $self.text(Math.floor(temp*10)/10 + "°C");
+          $self.text(Math.floor(parseFloat(temp)*10)/10 + "°C");
           var r = interpolate(temp, "r")
           var g = interpolate(temp, "g")
           var b = interpolate(temp, "b")
           
           $self.css("background", "rgb("+r+","+g+","+b+")")
           
+          console.log(Math.floor(temp*10)/10 + "°C")
         });
       }
       
@@ -32,13 +33,15 @@ block js
           method: "POST",
           data: {  }
         }).done(function(data) {
+          console.log(data);
           for(var id in data) {
             var node = data[id];
-            var $it = $("[node-id="+id+"]");
-            var $temp = $it.find(".tempReading");
-            $temp.attr("temp", node.Readings[0] / 1000.0);
-          }
-          
+            
+            var $temp = $("[node-id="+id+"]");
+            //var $temp = $it.find(".tempReading");
+            console.log($temp);
+            $temp.attr("temp", (node.Readings[0] / 1000.0));
+          }          
           update();          
           delete savereq;
         });
@@ -49,11 +52,11 @@ block js
     
 block content
   .grid
-    each node in data
+    each node, id in data
       -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(node-id=node.id, href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
+          a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
             header= node.NiceName
             //each hex, temp in tempscale
               if(temp > node.Readings[0]) 
@@ -66,4 +69,4 @@ block content
                 .innerTimeWrapper
                   span.center Offline
             -var temp = node.Readings[0] / 1000.0
-            .tempReading(temp=temp) 
+            .tempReading(node-id=id, temp=temp) 
