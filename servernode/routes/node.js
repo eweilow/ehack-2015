@@ -33,7 +33,7 @@ router.get('/:node_id', function(req, res, next) {
 	}
 	
 	async.parallel(sensor_queries, function(err, sensors) {
-		res.render("node", { node_id: node_id, nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
+		res.render("node", { node_id: node_id, ip: node.ip, port: node.port, nice_name: node.nice_name, sensors: sensors, interval: 2, last_read: 123 });
 	});
 });
 

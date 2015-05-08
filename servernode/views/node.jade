@@ -61,11 +61,11 @@ block js
 
 block content
   .content
-    h1
+    h1(style="width: 100%")
       span nod: 
       | #{nice_name}
-      a(href="/create/remove/" + node_id).remove ta bort
-   
+      a(href="/create/remove/" + node_id, style="float:right; font-size: 12px; color: rgba(0,0,0,0.5)").remove ta bort
+    h3(style="text-align: center;") #{ip}:#{port}
     each sensor, id in sensors
       case sensor.type
         when 1
