@@ -22,4 +22,4 @@ block content
 						td.table-bordered= (sensor.value / 1000) + "C"
 					when "picture"
 						td.table-bordered
-							img(src="/get_image/"+node_id+"/"+sensor.value,width=300,height=200)
+							img(src="/"+node_id+"-"+sensor.value,width=300,height=200)

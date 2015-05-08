@@ -41,6 +41,7 @@ block js
             //var $temp = $it.find(".tempReading");
             console.log($temp);
             $temp.attr("temp", (node.Readings[0] / 1000.0));
+            $temp.parent().find("img").attr("src", node.FileName);
           }          
           update();          
           delete savereq;
@@ -56,7 +57,7 @@ block content
       -var inactive = 50
       .gridItem
         .wrapper
-          a.inner(href="/node/"+node.id, class=node.LastReading > inactive ? "inactive": "")
+          a.inner(href="/node/"+id, class=node.LastReading > inactive ? "inactive": "")
             header= node.NiceName
             //each hex, temp in tempscale
               if(temp > node.Readings[0]) 

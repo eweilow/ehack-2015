@@ -8,9 +8,7 @@ var busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-var nodes = require('./routes/nodes');
 var push_data = require('./routes/push_data');
-var get_image = require('./routes/get_image');
 
 var app = express();
 
@@ -32,11 +30,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'received_files')));
 
 app.use('/', routes);
-app.use('/nodes', nodes);
 app.use('/push_data', push_data);
-app.use('/get_image', get_image);
 app.use('/node', require('./routes/node'));
-app.use('/nodes', require('./routes/nodes'));
 app.use('/forms', require('./routes/forms'))
 
 // catch 404 and forward to error handler
