@@ -1,10 +1,9 @@
 {
-    "id": 707,
     "readings": [
         {
             "type": "thermometer",
             "time": 1431026320751,
-            "temperature": 29.837
+            "temperature": 29837
         },
         {
             "type": "camera",
@@ -14,7 +13,7 @@
         {
             "type": "thermometer",
             "time": 1431026320749,
-            "temperature": 29.754
+            "temperature": 29754
         }
     ]
 }

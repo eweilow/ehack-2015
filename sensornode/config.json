@@ -1,0 +1,15 @@
+{
+    "nodeId": 10,
+    "sensors": {
+        "camera": {
+            "delay": 1,
+            "resolution": [640, 480]
+        },
+        "thermometer": {
+            "delay": 1
+        },
+        "push": {
+            "delay": 1
+        }
+    }
+}
