@@ -2,24 +2,17 @@ extends layout
 
 block content
   //p= JSON.stringify(data)
-  h1= title
-  p Add a node by entering the information below!
-  
-  
+   
   form.form(method='POST')
+    .description
+      h1 Node Entry Creation
   
-    | Name:
-    br
-    input(type='text', name='name')
-    br
-    | IP Adress:
-    br
-    input(type='text', name='ipadress')
-    br
-    | Port:
-    br
-    input(type='text', name='port')
-    br
-    br
-    input(type='submit', value='Submit')
+    .wrap
+      input(type='text', name='name', placeholder="Node Name")
+    .ip
+      input(type='text', name='ipadress', placeholder="IP Adress")
+    .port
+      input(type='text', name='port', placeholder="Port")
+    .wrap
+      input(type='submit', value='Submit')
     
