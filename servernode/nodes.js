@@ -34,7 +34,7 @@ nodes.niceTransform = function (callback) {
           
           
           
-          res[node.id] = { NiceName: node.nice_name, FileName: (data2[0] || {}).filename, Readings: [(data[0] || {}).reading], LastReading: 5.0/*(new Date).getTime() - data[0].unixmilliseconds*/, Interval: 1.0 };
+          res[node.id] = { NiceName: node.nice_name, FileName: node.id + "-" + (data2[0] || {}).filename, Readings: [(data[0] || {}).reading], LastReading: 5.0/*(new Date).getTime() - data[0].unixmilliseconds*/, Interval: 1.0 };
 
 
           parser(index + 1);

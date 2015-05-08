@@ -41,6 +41,17 @@ connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodesta
 		node.ping(function(status) {
 			console.log("Pinged node", status);
 		});
+		node.push_config({
+			sensors: {
+				temperature: {
+					delay: 1
+				},
+				camera: {
+					"delay": 5
+				}
+			},
+			push_delay: 5
+		});
 		nodes.list.push(node);
 	});
 });
