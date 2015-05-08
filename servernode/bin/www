@@ -32,7 +32,7 @@ console.log("Reading node list");
 connection.query("SELECT * FROM nodeinfo, nodestatus WHERE nodeinfo.id = nodestatus.nodeid", function(err, data) {
 	console.log(data);
 	data.forEach(function(node_data) {
-		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, 5048, node_data.laststatus > 0, 0); // TODO: read out last update time
+		var node = new nodes.SensorNode(node_data.id, node_data.nicename, node_data.ip, node_data.port, node_data.laststatus > 0, 0); // TODO: read out last update time
 		connection.query("SELECT * FROM sensorinfo WHERE nodeid = ?", [node.id], function(err, data) {
 			data.forEach(function(sensor_info) {
 				node.sensors[sensor_info.id] = { type: sensor_info.sensortype };
@@ -64,7 +64,7 @@ timers.setInterval(function() {
 			console.log("Pinged node", status);
 		});
 	});
-}, 60000);
+}, 1000);
 
 var server = http.createServer(app);
 server.listen(3000);

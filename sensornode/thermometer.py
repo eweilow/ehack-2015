@@ -4,11 +4,17 @@
 import glob
 import os
 
-thermometerPath = os.path.join(glob.glob("/sys/bus/w1/devices/28-*")[0],
-    "w1_slave")
-
 class ReadError(Exception):
     pass
+
+class NoThermometerError(Exception):
+    pass
+
+try:
+    thermometerPath = os.path.join(glob.glob("/sys/bus/w1/devices/28-*")[0],
+        "w1_slave")
+except IndexError:
+    raise NoThermometerError
 
 def check():
     with open(thermometerPath, 'r') as f:
