@@ -1,82 +1,77 @@
 extends layout
 
 block js
-	script(src='/js/chart.min.js')
-	script.
-		var node_id = !{node_id};
-	
-		function update_readout(sensor_id, sensor) {
-			var $element = $("[sensor-id="+sensor_id+"]");
-			switch (sensor.type) {
-				case 1:
-				for (var i = 0; i < sensor.value.length; i++)
-					sensor.chart.datasets[0].points[29-i].value = sensor.value[i].value / 1000;
-				sensor.chart.update();
-				break;
-				
-				case 2:
-				$element.find("img").attr("src", "/"+node_id+"-"+sensor.value);
-				break;
-			}
-		}
-	
-		var sensors = !{JSON.stringify(sensors)};
-		$(document).ready(function() {
-			for (var id in sensors) {
-				var sensor = sensors[id];
-				if (sensor.type == 1) {
-					var $element = $("[sensor-id="+id+"]");
-					var data = {
-						labels: Array.apply(null, new Array(30)).map(function() { return ""; }),
-						datasets: [
-							{
-								fillColor: "rgba(151,187,205,0.2)",
-								strokeColor: "rgba(151,187,205,1)",
-								data: Array.apply(null, new Array(30)).map(function() { return 0; })
-							}
-						]
-					};
-					sensor.chart = new Chart($element.find("canvas").get(0).getContext('2d')).Line(data, {
-						pointDot: false,
-						skipLabels: true,
-						bezierCurve: false
-					});
-				}
-				update_readout(id, sensor);
-			}
-			setInterval(function() {
-				$.ajax({
-					url: "/node/" + node_id,
-					context: document.body,
-					method: "POST",
-				}).done(function(data) {
-					for (var id in data) {
-					var sensor = sensors[id];
-						sensor.value = data[id].value;
-						update_readout(id, sensor);
-					}
-				});
-			}, 1000);
-		});
+  script(src='/js/chart.min.js')
+  script.
+    var node_id = !{node_id};
+  
+    function update_readout(sensor_id, sensor) {
+      var $element = $("[sensor-id="+sensor_id+"]");
+      switch (sensor.type) {
+        case 1:
+        for (var i = 0; i < sensor.value.length; i++)
+          sensor.chart.datasets[0].points[29-i].value = sensor.value[i].value / 1000;
+        sensor.chart.update();
+        break;
+        
+        case 2:
+        $element.find("img").attr("src", "/"+node_id+"-"+sensor.value);
+        break;
+      }
+    }
+  
+    var sensors = !{JSON.stringify(sensors)};
+    $(document).ready(function() {
+      for (var id in sensors) {
+        var sensor = sensors[id];
+        if (sensor.type == 1) {
+          var $element = $("[sensor-id="+id+"]");
+          var data = {
+            labels: Array.apply(null, new Array(30)).map(function() { return ""; }),
+            datasets: [
+              {
+                fillColor: "rgba(151,187,205,0.2)",
+                strokeColor: "rgba(151,187,205,1)",
+                data: Array.apply(null, new Array(30)).map(function() { return 0; })
+              }
+            ]
+          };
+          sensor.chart = new Chart($element.find("canvas").get(0).getContext('2d')).Line(data, {
+            pointDot: false,
+            skipLabels: true,
+            bezierCurve: false
+          });
+        }
+        update_readout(id, sensor);
+      }
+      setInterval(function() {
+        $.ajax({
+          url: "/node/" + node_id,
+          context: document.body,
+          method: "POST",
+        }).done(function(data) {
+          for (var id in data) {
+          var sensor = sensors[id];
+            sensor.value = data[id].value;
+            update_readout(id, sensor);
+          }
+        });
+      }, 1000);
+    });
 
 block content
-	h1= title
-	p= nice_name
- 
- 
-	table.table
-		thead
-			tr
-				th.table-bordered Sensor Name
-				th.table-bordered Value
-				
-		each sensor, id in sensors
-			tr
-				td.table-bordered= "Temperature"
-				case sensor.type
-					when 1
-						td.table-bordered(sensor-id=id)
-							canvas(width=700, height=300)
-					when 2
-						td.table-bordered(sensor-id=id)
-							img(width=300,height=200)
+  .content
+    h1
+      span nod: 
+      | #{nice_name}
+   
+    each sensor, id in sensors
+      case sensor.type
+        when 1
+          h3(style="text-align: center;") Temperatur
+          div(sensor-id=id, style="width:100%; text-align: center;")
+            canvas(width=700, height=300, style="display: inline-block;")
+        when 2
+          h3(style="text-align: center;") Senaste bild
+          div(sensor-id=id, style="width:100%; text-align: center;")
+            img(width=600,height=480)
