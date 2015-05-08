@@ -36,6 +36,7 @@ app.use('/push_data', push_data);
 app.use('/get_image', get_image);
 app.use('/node', require('./routes/node'));
 app.use('/nodes', require('./routes/nodes'));
+app.use('/forms', require('./routes/forms'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

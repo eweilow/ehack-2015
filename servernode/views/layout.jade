@@ -1,24 +1,22 @@
 doctype html
 
 mixin navbar()
-	-var items = {"Home": "/", "Nodes": "/nodes"}
-	nav.navbar.navbar-inverse.navbar-fixed-top
-			.container
-				.navbar-header
-					button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
-						span.sr-only Toggle navigation
-						span.icon-bar
-						span.icon-bar
-						span.icon-bar
-					a.navbar-brand(href='/',style="padding:0;")
-						//img(src="flode.png", style="height:100%")
-				#navbar.collapse.navbar-collapse
-					ul.nav.navbar-nav
-						each key, item in items
-							li(class=activePage===key?"active":"")
-								a(href=key)= item
-								
-//mixin homeNodes()
+  -var items = {"Home": "/", "Nodes": "/nodes","Forms":"/forms"}
+  nav.navbar.navbar-inverse.navbar-fixed-top
+      .container
+        .navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/',style="padding:0;")
+            //img(src="flode.png", style="height:100%")
+        #navbar.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            each key, item in items
+              li(class=activePage===key?"active":"")
+                a(href=key)= item
 	
 html(lang='en')
 	head
