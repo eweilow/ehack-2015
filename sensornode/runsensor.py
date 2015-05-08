@@ -18,11 +18,21 @@ def threadsafePrint(s):
 class SensorNode(object):
     def __init__(self):
         with open("serverip.txt", 'r') as f:
-            self.ip, self.port = f.read().strip().split(':')
-        self.port = int(self.port)
-        self.id = 1
+            ip, port = f.read().strip().split(':')
+        port = int(port)
+        nodeId = 10
 
-        self.server = ServerNode(self.ip, self.port, self.id)
+        self.server = ServerNode(ip, port, nodeId)
+
+        self.config = {
+            "delay": {
+                1: 1,
+                2: 1,
+                "push": 1
+            }
+        }
+
+        self.exitSignalReceived = False
 
     def run(self):
         cameraThread = Thread(target=self.doCamera)
@@ -30,6 +40,13 @@ class SensorNode(object):
 
         cameraThread.start()
         thermometerThread.start()
+
+        try:
+            while True:
+                time.sleep(100)
+        except (KeyboardInterrupt, SystemExit) as e:
+            self.exitSignalReceived = True
+            raise e
 
     def pushPicture(self, camera):
         with BytesIO() as f:
@@ -45,18 +62,15 @@ class SensorNode(object):
                     "readings.json"
                 ])
 
-    def doCamera(self):
-        try:
-            with PiCamera() as camera:
-                time1 = time.time()
-                while True:
-                    self.pushPicture(camera)
-                    time2 = time.time()
-                    time.sleep(10 - (time2 - time1))
-                    time1 = time.time()
-        except Exception as e:
-            camera.close()
-            raise e
+    def doCamera(self, sensorId=2):
+        with PiCamera() as camera:
+            timeStarted = time.time()
+            while True:
+                self.pushPicture(camera)
+                keepGoing = self.smartSleep(sensorId, timeStarted)
+                if not keepGoing:
+                    return
+                timeStarted = time.time()
 
     def pushTemperature(self):
         # Erik wants the temperature and time in milliwhatevers.
@@ -70,13 +84,35 @@ class SensorNode(object):
         with BytesIO(json.dumps(readings)) as f:
             self.server.pushFile(f, "readings.json")
 
-    def doThermometer(self):
-        time1 = time.time()
+    def doThermometer(self, sensorId=1):
+        timeStarted = time.time()
         while True:
             self.pushTemperature()
-            time2 = time.time()
-            time.sleep(10 - (time2 - time1))
-            time1 = time.time()
+            keepGoing = self.smartSleep(sensorId, timeStarted)
+            if not keepGoing:
+                return
+            timeStarted = time.time()
+
+    def smartSleep(self, sensorId, timeStarted):
+        """Sleep for the delay specified for the sensor `sensorId`,
+        continuously checking for config changes and exit signals. If an exit
+        signal is received, return False, otherwise True.
+        """
+        time2 = time.time()
+        totalSleep = self.config["delay"][sensorId] - (time2 - timeStarted)
+        totalSlept = 0
+        for i in ([5] * int(totalSleep / 5)) + [totalSleep % 5]:
+            # Check for config updates and kill signals
+            # even when just waiting around.
+            time3 = time.time()
+            if self.exitSignalReceived:
+                return False
+            if self.config["delay"][sensorId] <= totalSlept:
+                break
+            time4 = time.time()
+            totalSlept += i
+            time.sleep(i - (time4 - time3))
+        return True
 
 def cameraReading(t, extension=".jpg"):
     t = int(time.time() * 1000)
