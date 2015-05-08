@@ -39,7 +39,9 @@ class ServerNode(object):
         if not filename:
             raise ValueError("Pushing a file requires a filename.")
 
-        requests.put(self.pushFileUrl, files=files)
+        # A timeout might not be wanted in the
+        # end, but right now it's super useful.
+        requests.put(self.pushFileUrl, files=files, timeout=5)
 
 if __name__ == '__main__':
     with open("serverip.txt", 'r') as f:
