@@ -4,38 +4,42 @@ var nodes = require('../nodes');
 var async = require('async');
 
 router.get('/:node_id', function(req, res, next) {
-	var node_id = req.params.id;
+	var node_id = req.params.node_id;
 	
 	var node = nodes.list[0];
 	
 	var connection = req.app.get('connection');
 	var sensor_queries = {};
 	console.log(node.sensors);
-	for (var sensor_id in node.sensors) {
-		console.log(sensor_id, sensor);
-		var sensor = node.sensors[sensor_id];
-		sensor_id = parseInt(sensor_id);
+	for (var key in node.sensors) {
+		var sensor = node.sensors[key];
+		var sensor_id = parseInt(key);
 		switch (sensor.type) {
 			case 1:
-			sensor_queries[sensor_id] = function(callback) {
-				connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
-					if (data.length)
-						callback(null, { type: 'temperature', value: data[0].reading });
-					else
-						callback(null, { type: 'temperature', value: 0 });
-				});
-			};
+			sensor_queries[sensor_id] = function(sensor_id) {
+				return function(callback) {
+					connection.query("SELECT id, reading, unixmilliseconds time FROM temperaturereading WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
+						console.log(data);
+						if (data.length)
+							callback(null, { type: 'temperature', value: data[0].reading });
+						else
+							callback(null, { type: 'temperature', value: 0 });
+					});
+				};
+			}(sensor_id);
 			break;
 			
 			case 2:
-			sensor_queries[sensor_id] = function(callback) {
-				connection.query("SELECT filename FROM sensor_files WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
-					if (data.length)
-						callback(null, { type: 'picture', value: data[0].filename });
-					else
-						callback(null, { type: 'picture',  value: "" });
-				});
-			};
+			sensor_queries[sensor_id] = function(sensor_id) {
+				return function(callback) {
+					connection.query("SELECT filename FROM sensor_files WHERE sensorid = ? ORDER BY time DESC LIMIT 1", [sensor_id], function(err, data) {
+						if (data.length)
+							callback(null, { type: 'picture', value: data[0].filename });
+						else
+							callback(null, { type: 'picture',  value: "" });
+					});
+				};
+			}(sensor_id);
 			break;
 		}
 	}
