@@ -22,11 +22,11 @@ function handle_data(app, data, id, files) {
 		}
 		switch (sensor.type) {
 			case 1:
-			connection.query("INSERT INTO temperaturereading(sensorid, reading, unixmilliseconds) VALUES(?, ?, ?)", [readout.sensor_id, readout.temperature, readout.time], function(err) { });
+			connection.query("INSERT INTO temperaturereading(id, sensoroffset, reading, unixmilliseconds) VALUES(?, ?, ?, ?)", [node.id, readout.sensoroffset, readout.temperature, readout.time], function(err) { });
 			break;
 			
 			case 2:
-			connection.query("INSERT INTO sensor_files(sensorid, filename, time) VALUES(?, ?, ?)", [readout.sensor_id, readout.filename, readout.time], function(err) { console.log(err); });
+			connection.query("INSERT INTO sensor_files(id, filename, time) VALUES(?, ?, ?)", [node.id, readout.filename, readout.time], function(err) { console.log(err); });
 			break;
 		}
 	});
