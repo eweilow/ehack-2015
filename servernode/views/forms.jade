@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  //p= JSON.stringify(data)
+  h1= title
+  p Add a node by entering the information below!
+  
+  
+  form.form(method='POST')
+  
+    | Name:
+    br
+    input(type='text', name='name')
+    br
+    | IP Adress:
+    br
+    input(type='text', name='ipadress')
+    br
+    | Port:
+    br
+    input(type='text', name='port')
+    br
+    br
+    input(type='submit', value='Submit')
+    
