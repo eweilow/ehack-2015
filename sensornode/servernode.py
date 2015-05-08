@@ -14,16 +14,19 @@ class ServerNode(object):
         self.pushFileUrl = "http://" + self.ip + ":" + str(port) \
             + "/push_data/" + str(sensorId)
 
-    def pushFile(self, pathOrFile, filename=None):
-        self.pushFiles([pathOrFile], [filename])
+    def pushFile(self, pathOrFile, filename=None, isData=False):
+        self.pushFiles([pathOrFile], [filename], isData)
 
-    def pushFiles(self, pathOrFileList, filenames=None):
+    def pushFiles(self, pathOrFileList, filenames=None, isData=False):
         filenames = filenames if filenames is not None \
             else [None] * len(pathOrFileList)
         files = []
 
         for i, pathOrFile in enumerate(pathOrFileList):
-            if hasattr(pathOrFile, "read"):
+            if isData:
+                filename = filenames[i]
+                data = pathOrFile
+            elif hasattr(pathOrFile, "read"):
                 filename = filenames[i]
                 data = pathOrFile.read()
             else:

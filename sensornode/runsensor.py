@@ -3,6 +3,7 @@
 
 import json
 import sys
+import Queue
 import time
 import tcpcommands
 import thermometer
@@ -15,6 +16,17 @@ from servernode import ServerNode
 def threadsafePrint(s):
     sys.stdout.write(s + "\n")
 
+class Drain(object):
+    def __init__(self, queue):
+        self.queue = queue
+
+    def __iter__(self):
+        while True:
+            try:
+                yield self.queue.get_nowait()
+            except Queue.Empty:
+                break
+
 class SensorNode(object):
     def __init__(self):
         with open("serverip.txt", 'r') as f:
@@ -24,22 +36,34 @@ class SensorNode(object):
 
         self.server = ServerNode(ip, port, nodeId)
 
+        self.sensors = []
+        self.addSensor(CameraSensor)
+        self.addSensor(ThermometerSensor)
+
+        self.addSensor(Pusher) # Not a sensor, but...
+
+        self.fileQueue = Queue.Queue()
+        self.readingQueue = Queue.Queue()
+
         self.config = {
             "delay": {
                 1: 1,
-                2: 1,
-                "push": 1
+                2: 10,
+                "push": 10
             }
         }
 
         self.exitSignalReceived = False
 
-    def run(self):
-        cameraThread = Thread(target=self.doCamera)
-        thermometerThread = Thread(target=self.doThermometer)
+    def addSensor(self, class_, sensorId=None):
+        if sensorId is None:
+            self.sensors.append(class_(self))
+        else:
+            self.sensors.append(class_(self, sensorId))
 
-        cameraThread.start()
-        thermometerThread.start()
+    def run(self):
+        for sensor in self.sensors:
+            Thread(target=sensor.run).start()
 
         try:
             while True:
@@ -48,71 +72,111 @@ class SensorNode(object):
             self.exitSignalReceived = True
             raise e
 
-    def pushPicture(self, camera):
-        with BytesIO() as f:
-            threadsafePrint("Takin' picture.")
-            readings = wrapReading(cameraReading(time.time()))
-            camera.capture(f, 'jpeg')
-            threadsafePrint("Pushin' picture.")
+class Sensor(object):
+    """Subclass this class and override the `do` method to create custom
+    sensors."""
 
-            f.seek(0)
-            with BytesIO(json.dumps(readings)) as f2:
-                self.server.pushFiles([f, f2], [
-                    readings["readings"][0]["filename"],
-                    "readings.json"
-                ])
+    def __init__(self, node, sensorId):
+        self.node = node
+        self.sensorId = sensorId
 
-    def doCamera(self, sensorId=2):
-        with PiCamera() as camera:
-            timeStarted = time.time()
-            while True:
-                self.pushPicture(camera)
-                keepGoing = self.smartSleep(sensorId, timeStarted)
-                if not keepGoing:
-                    return
-                timeStarted = time.time()
-
-    def pushTemperature(self):
-        # Erik wants the temperature and time in milliwhatevers.
-        temperature = int(thermometer.check() * 1000)
-        t = int(time.time() * 1000)
-
-        readings = wrapReading(thermometerReading(time.time(),
-            thermometer.check()))
-
-        threadsafePrint("Pushing temperature...")
-        with BytesIO(json.dumps(readings)) as f:
-            self.server.pushFile(f, "readings.json")
-
-    def doThermometer(self, sensorId=1):
+    def run(self, *args, **kwargs):
         timeStarted = time.time()
         while True:
-            self.pushTemperature()
-            keepGoing = self.smartSleep(sensorId, timeStarted)
+            self.do(*args, **kwargs)
+            keepGoing = self.smartSleep(timeStarted)
             if not keepGoing:
                 return
             timeStarted = time.time()
 
-    def smartSleep(self, sensorId, timeStarted):
+    def smartSleep(self, timeStarted):
         """Sleep for the delay specified for the sensor `sensorId`,
         continuously checking for config changes and exit signals. If an exit
         signal is received, return False, otherwise True.
         """
         time2 = time.time()
-        totalSleep = self.config["delay"][sensorId] - (time2 - timeStarted)
+        totalSleep = self.node.config["delay"][self.sensorId] - (time2 - timeStarted)
         totalSlept = 0
-        for i in ([5] * int(totalSleep / 5)) + [totalSleep % 5]:
+        # Modulo gives you a remainder even with negative numbers, so the
+        # following line might look a bit odd.
+        sleepIntervals = ([5] * int(totalSleep / 5)) + ([totalSleep % 5] if
+            totalSleep > 0 else [])
+        for i in sleepIntervals:
             # Check for config updates and kill signals
             # even when just waiting around.
             time3 = time.time()
-            if self.exitSignalReceived:
+            if self.node.exitSignalReceived:
                 return False
-            if self.config["delay"][sensorId] <= totalSlept:
+            if self.node.config["delay"][self.sensorId] <= totalSlept:
                 break
             time4 = time.time()
             totalSlept += i
             time.sleep(i - (time4 - time3))
+        if self.node.exitSignalReceived:
+            # In case the thing doesn't ever sleep.
+            return False
         return True
+
+class ThermometerSensor(Sensor):
+    def __init__(self, node, sensorId=1):
+        Sensor.__init__(self, node, sensorId)
+
+    def do(self):
+        # Erik wants the temperature and time in milliwhatevers.
+        temperature = int(thermometer.check() * 1000)
+        t = int(time.time() * 1000)
+
+        threadsafePrint("Queuing temperature...")
+        reading = thermometerReading(time.time(), thermometer.check())
+        self.node.readingQueue.put(reading)
+
+class CameraSensor(Sensor):
+    def __init__(self, node, sensorId=2):
+        Sensor.__init__(self, node, sensorId)
+
+    def do(self, camera):
+        self.queuePicture(camera)
+
+    def run(self):
+        with PiCamera() as camera:
+            Sensor.run(self, camera)
+
+    def queuePicture(self, camera):
+        with BytesIO() as f:
+            threadsafePrint("Takin' picture.")
+            reading = cameraReading(time.time())
+            camera.capture(f, 'jpeg')
+
+            threadsafePrint("Queuin' picture.")
+            f.seek(0)
+            self.node.readingQueue.put(reading)
+            self.node.fileQueue.put((reading["filename"], f.read()))
+
+class Pusher(Sensor):
+    # I mean, it's not a sensor, but it works the same way.
+    def __init__(self, node):
+        Sensor.__init__(self, node, "push")
+
+    def do(self):
+        if self.node.readingQueue.empty():
+            threadsafePrint("Not pushing - empty queue.")
+            return
+
+        j = {
+            "readings": []
+        }
+        for reading in Drain(self.node.readingQueue):
+            j["readings"].append(reading)
+        readingsJson = json.dumps(j)
+
+        filenames, dataList = [], []
+        for filename, data in Drain(self.node.fileQueue):
+            filenames.append(filename)
+            dataList.append(data)
+
+        threadsafePrint("Pushing data!")
+        self.node.server.pushFiles(dataList + [readingsJson],
+            filenames + ["readings.json"], isData=True)
 
 def cameraReading(t, extension=".jpg"):
     t = int(time.time() * 1000)
