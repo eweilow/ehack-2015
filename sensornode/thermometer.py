@@ -4,7 +4,7 @@
 import glob
 import os
 
-class ReadError(Exception):
+class ReadError(IOError):
     pass
 
 class NoThermometerError(Exception):
@@ -13,7 +13,7 @@ class NoThermometerError(Exception):
 try:
     thermometerPath = os.path.join(glob.glob("/sys/bus/w1/devices/28-*")[0],
         "w1_slave")
-except IndexError:
+except IndexError: /sys/class/thermal/thermal_zone0
     thermometerPath = None
 
 def exists():

@@ -55,10 +55,15 @@ class Commander(object):
                 data = self.request.recv(1)
                 print "Received command {}. Executing.".format(str(ord(data)))
 
-                commander.node.setServer(self.request.getpeername()[0],
-                    PUSHPORT)
-
+                oldId = commander.node.config["node_id"]
                 commandHandlers[ord(data)](self.request, commander.node)
+
+                if commander.node.server is None or \
+                    commander.node.ip != self.request.getpeername()[0] or \
+                    oldId != commander.node.config["node_id"]:
+                    commander.node.setServer(self.request.getpeername()[0],
+                        PUSHPORT)
+
         return CommandHandler
 
     def run(self):
@@ -67,3 +72,4 @@ class Commander(object):
     def close(self):
         print "Closing."
         self.server.shutdown()
+        print "Closed server."
