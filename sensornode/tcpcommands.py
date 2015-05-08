@@ -65,4 +65,5 @@ class Commander(object):
         Thread(target=self.server.serve_forever).start()
 
     def close(self):
+        print "Closing."
         self.server.shutdown()
